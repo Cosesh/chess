@@ -9,6 +9,7 @@ package chess;
 public class ChessPosition {
 
     int row;
+
     int col;
 
     public ChessPosition(int row, int col) {
