@@ -1,3 +1,5 @@
 package chess;
 
-public interface PieceMovesCalculator {}
+public interface PieceMovesCalculator {
+
+}
