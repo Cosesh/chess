@@ -56,7 +56,7 @@ public class ChessPiece {
         ArrayList<ChessMove> moves = new ArrayList<>();
         switch (type) {
             case KING:
-                moves =
+
             case QUEEN:
 
             case BISHOP:
