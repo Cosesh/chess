@@ -8,10 +8,9 @@ package chess;
  */
 public class ChessBoard {
 
-    private ChessPiece[][] board;
+    private ChessPiece[][] board = new ChessPiece[8][8];
 
     public ChessBoard() {
-        board = new ChessPiece[8][8];
     }
 
     /**
@@ -41,6 +40,11 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
+        board = new ChessPiece[8][8];
+
+
+
+
         board = new ChessPiece[8][8];
         board[0][0] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
         board[0][1] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);

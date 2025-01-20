@@ -1,5 +1,8 @@
 package chess;
 
+import com.google.gson.internal.bind.ArrayTypeAdapter;
+
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -10,8 +13,8 @@ import java.util.Collection;
  */
 public class ChessPiece {
 
-    ChessGame.TeamColor pieceColor;
-    ChessPiece.PieceType type;
+    private ChessGame.TeamColor pieceColor;
+    private ChessPiece.PieceType type;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
     }
@@ -50,6 +53,20 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        ArrayList<ChessMove> moves = new ArrayList<>();
+        switch (type) {
+            case KING:
+                moves =
+            case QUEEN:
+
+            case BISHOP:
+
+            case KNIGHT:
+
+            case ROOK:
+
+            case PAWN:
+
+        }
     }
 }
