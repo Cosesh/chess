@@ -1,7 +1,8 @@
 package chess;
 
 public interface PieceMovesCalculator {
-    public void calculateMoves();
+    public Collection<ChessMove> calculateMoves(ChessBoard board, ChessPosition position);
+
 }
 
 

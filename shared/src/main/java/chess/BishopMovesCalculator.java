@@ -1,7 +1,6 @@
 package chess;
 
-public class KingMovesCalculator implements PieceMovesCalculator {
-
+public class BishopMovesCalculator implements PieceMovesCalculator {
     public Collection<ChessMove> calculateMoves(ChessBoard board, ChessPosition position) {
 
     }

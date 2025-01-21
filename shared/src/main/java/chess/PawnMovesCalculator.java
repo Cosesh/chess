@@ -1,7 +1,8 @@
 package chess;
 
-public class KingMovesCalculator implements PieceMovesCalculator {
+public class PawnMovesCalculator implements PieceMovesCalculator {
 
+    @Override
     public Collection<ChessMove> calculateMoves(ChessBoard board, ChessPosition position) {
 
     }
