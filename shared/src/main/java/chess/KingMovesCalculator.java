@@ -11,6 +11,7 @@ public class KingMovesCalculator implements PieceMovesCalculator {
         if (piece != null) {
 
         }
+        return null; //fix me
 
     }
 }
