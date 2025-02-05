@@ -17,6 +17,16 @@ public class ChessBoard {
     public ChessBoard() {
     }
 
+    public ChessBoard(ChessBoard copy){
+        this.board = new ChessPiece[8][8];
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                this.board[i][j] = copy.board[i][j];
+            }
+
+        }
+    }
+
     /**
      * Adds a chess piece to the chessboard
      *
@@ -89,5 +99,14 @@ public class ChessBoard {
     @Override
     public int hashCode() {
         return Arrays.deepHashCode(board);
+    }
+
+    @Override
+    public String toString() {
+        String toPrint = "";
+        for (int i = 0; i < 8; i++) {
+            toPrint += Arrays.toString(board[i]) + "\n";
+        }
+        return toPrint;
     }
 }
