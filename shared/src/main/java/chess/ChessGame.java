@@ -205,10 +205,8 @@ public class ChessGame {
                         stale = false;
                     }
                 }
-
             }
-        } else{stale = false;}
-
+        }else{stale = false;}
 
         return stale;
     }
