@@ -168,20 +168,21 @@ public class ChessGame {
     public boolean isInCheckmate(TeamColor teamColor) {
         ChessPosition spotToCheck;
         ChessPiece pieceToCheck;
+        boolean checkmate = true;
         if(isInCheck(teamColor)){
-            for (int i = 1; i <= 8; i++) {
+            for(int i = 1; i <= 8; i++) {
                 for (int j = 1; j <= 8 ; j++) {
                     spotToCheck = new ChessPosition(i,j);
                     pieceToCheck = gameBoard.getPiece(spotToCheck);
-                    if(pieceToCheck != null && pieceToCheck.getTeamColor() == teamColor && validMoves(spotToCheck).isEmpty()){
-                        return true;
+                    if(pieceToCheck != null && pieceToCheck.getTeamColor() == teamColor && !validMoves(spotToCheck).isEmpty()){
+                        checkmate = false;
                     }
                 }
 
             }
-        }
+        } else{checkmate = false;}
 
-        return false;
+        return checkmate;
     }
 
     /**
