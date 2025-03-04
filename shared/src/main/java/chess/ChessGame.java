@@ -206,7 +206,8 @@ public class ChessGame {
                 }
 
             }
-        }
+        } else{stale = false;}
+
 
         return stale;
     }
