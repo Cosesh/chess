@@ -74,6 +74,10 @@ public class Server {
             var msg = String.format("{ \"message\": \"Error: unauthorized\" }");
             ctx.status(401).result(msg);
 
+        }catch (BadRequestException ex){
+            var msg = String.format("{ \"message\": \"Error: bad request\" }");
+            ctx.status(400).result(msg);
+
         } catch (Exception ex){
             throw ex;
         }

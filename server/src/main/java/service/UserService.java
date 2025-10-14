@@ -26,8 +26,11 @@ public class UserService {
 
     }
 
-    public AuthData login(UserData user) throws UnauthorizedException {
-        if(DAO.getUser(user.username()) == null){
+    public AuthData login(UserData user) throws UnauthorizedException, BadRequestException {
+        if(user.username() == null || user.password() == null){
+            throw new BadRequestException("Error: bad request");
+        }
+        else if(DAO.getUser(user.username()) == null){
             throw new UnauthorizedException("Error: unauthorized");
         } else if (!DAO.getUser(user.username()).password().equals(user.password())) {
             throw new UnauthorizedException("Error: unauthorized");
