@@ -1,7 +1,9 @@
 package server;
 
 import com.google.gson.Gson;
-import dataModel.UserData;
+import model.UserData;
+import dataaccess.AuthDataAccess;
+import dataaccess.AuthMemoryDataAccess;
 import dataaccess.UserDataAccess;
 import dataaccess.UserMemoryDataAccess;
 import io.javalin.*;
@@ -10,19 +12,20 @@ import io.javalin.http.Context;
 import service.AlreadyTakenException;
 import service.BadRequestException;
 import service.UnauthorizedException;
-import service.UserService;
+import service.SessionService;
 
 public class Server {
 
     private final Javalin server;
-    private final UserService userService;
+    private final SessionService sessionService;
 
 
 
 
     public Server() {
-        UserDataAccess DAO = new UserMemoryDataAccess();
-        userService = new UserService(DAO);
+        UserDataAccess UDAO = new UserMemoryDataAccess();
+        AuthDataAccess ADAO = new AuthMemoryDataAccess();
+        sessionService = new SessionService(UDAO, ADAO);
         server = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
@@ -30,6 +33,7 @@ public class Server {
         server.delete("db", ctx->ctx.result("{}"));
         server.post("user", this::register);
         server.post("session", this::login);
+        server.delete("session", this::logout);
 
     }
     
@@ -39,7 +43,7 @@ public class Server {
             String reqJson = ctx.body();
             var user = serializer.fromJson(reqJson, UserData.class);
 
-            var authData = userService.register(user);
+            var authData = sessionService.register(user);
             ctx.result(serializer.toJson(authData));
 
 
@@ -65,7 +69,7 @@ public class Server {
             String reqJson = ctx.body();
             var user = serializer.fromJson(reqJson, UserData.class);
 
-            var authData = userService.login(user);
+            var authData = sessionService.login(user);
             ctx.result(serializer.toJson(authData));
 
 
@@ -77,6 +81,21 @@ public class Server {
         }catch (BadRequestException ex){
             var msg = String.format("{ \"message\": \"Error: bad request\" }");
             ctx.status(400).result(msg);
+
+        } catch (Exception ex){
+            throw ex;
+        }
+
+    }
+
+    private void logout(Context ctx) {
+        try{
+            String authToken = ctx.header("authorization");
+            sessionService.logout(authToken);
+
+        } catch (UnauthorizedException ex){
+            var msg = String.format("{ \"message\": \"Error: unauthorized\" }");
+            ctx.status(401).result(msg);
 
         } catch (Exception ex){
             throw ex;
