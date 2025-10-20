@@ -1,11 +1,9 @@
 package server;
 
 import com.google.gson.Gson;
+import dataaccess.*;
 import model.UserData;
-import dataaccess.AuthDataAccess;
-import dataaccess.AuthMemoryDataAccess;
-import dataaccess.UserDataAccess;
-import dataaccess.UserMemoryDataAccess;
+import model.*;
 import io.javalin.*;
 
 import io.javalin.http.Context;
@@ -13,6 +11,8 @@ import service.AlreadyTakenException;
 import service.BadRequestException;
 import service.UnauthorizedException;
 import service.SessionService;
+
+import java.util.Map;
 
 public class Server {
 
@@ -25,7 +25,8 @@ public class Server {
     public Server() {
         UserDataAccess UDAO = new UserMemoryDataAccess();
         AuthDataAccess ADAO = new AuthMemoryDataAccess();
-        sessionService = new SessionService(UDAO, ADAO);
+        GameDataAccess GDAO = new GameMemoryDataAccess();
+        sessionService = new SessionService(UDAO, ADAO, GDAO);
         server = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
@@ -34,6 +35,8 @@ public class Server {
         server.post("user", this::register);
         server.post("session", this::login);
         server.delete("session", this::logout);
+        server.post("game", this::createGame);
+        server.put("game", this::joinGame);
 
     }
     
@@ -103,6 +106,71 @@ public class Server {
 
     }
 
+    private void createGame(Context ctx) {
+        try{
+            var serializer = new Gson();
+            String reqJson = ctx.body();
+            var game = serializer.fromJson(reqJson, GameData.class);
+            String authToken = ctx.header("authorization");
+            var gameID = sessionService.createGame(game, authToken);
+            String result = "{ \"gameID\": " + gameID + "}";
+            ctx.result(result);
+
+
+
+        } catch (UnauthorizedException ex){
+            var msg = String.format("{ \"message\": \"Error: unauthorized\" }");
+            ctx.status(401).result(msg);
+
+        }catch (BadRequestException ex){
+            var msg = String.format("{ \"message\": \"Error: bad request\" }");
+            ctx.status(400).result(msg);
+
+        } catch (Exception ex){
+            throw ex;
+        }
+    }
+
+    private void joinGame(Context ctx) {
+
+        try{
+            var serializer = new Gson();
+            String reqJson = ctx.body();
+            var body = serializer.fromJson(reqJson, Map.class);
+            String authToken = ctx.header("authorization");
+
+            Double IDdouble = (Double) body.get("gameID");
+            if(IDdouble == null){
+                throw new BadRequestException("Error: Bad request");
+            }
+            int ID = IDdouble.intValue();
+            String playerColor = (String) body.get("playerColor");
+            if(playerColor == null || !playerColor.equals("WHITE") && !playerColor.equals("BLACK")){
+                throw new BadRequestException("Error: Bad request");
+            }
+            sessionService.joinGame(ID, authToken, playerColor);
+
+
+
+        } catch (UnauthorizedException ex){
+            var msg = String.format("{ \"message\": \"Error: unauthorized\" }");
+            ctx.status(401).result(msg);
+
+        }catch (BadRequestException ex){
+            var msg = String.format("{ \"message\": \"Error: bad request\" }");
+            ctx.status(400).result(msg);
+
+        } catch (AlreadyTakenException ex) {
+            var msg = String.format("{ \"message\": \"Error: already taken\" }");
+            ctx.status(403).result(msg);
+
+        } catch (Exception ex){
+            throw ex;
+        }
+    }
+
+
+
     private void clear(Context ctx) {
         try{
             sessionService.clear();
@@ -111,8 +179,10 @@ public class Server {
             throw new RuntimeException(e);
 
         }
-
     }
+
+
+
 
 
     public int run(int desiredPort) {

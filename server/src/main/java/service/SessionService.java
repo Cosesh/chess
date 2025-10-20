@@ -1,6 +1,8 @@
 package service;
 
+import dataaccess.GameDataAccess;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import dataaccess.AuthDataAccess;
 import dataaccess.UserDataAccess;
@@ -12,9 +14,12 @@ public class SessionService {
 
     private final UserDataAccess UserDAO;
     private final AuthDataAccess AuthDAO;
-    public SessionService(UserDataAccess UserDAO, AuthDataAccess AuthDAO){
+    private final GameDataAccess GameDAO;
+
+    public SessionService(UserDataAccess UserDAO, AuthDataAccess AuthDAO, GameDataAccess GameDAO ){
         this.UserDAO = UserDAO;
         this.AuthDAO = AuthDAO;
+        this.GameDAO = GameDAO;
     }
 
     public static String generateToken() {
@@ -62,9 +67,35 @@ public class SessionService {
 
     }
 
+    public int createGame(GameData game, String auth) throws BadRequestException, UnauthorizedException {
+        if(game.gameName() == null) {
+            throw new BadRequestException("Error: Bad request");
+        } else if(AuthDAO.getAuth(auth) == null){
+            throw new UnauthorizedException("Error: unauthorized");
+        } else {
+            return GameDAO.createGame(game);
+
+        }
+    }
+
+    public void joinGame(int gameID, String auth, String color) throws UnauthorizedException, BadRequestException, AlreadyTakenException {
+        if(AuthDAO.getAuth(auth) == null) {
+            throw new UnauthorizedException("Error: unauthorized");
+        } else if(gameID <= 0 || GameDAO.getGame(gameID) == null){
+            throw new BadRequestException("Error: Bad request");
+        } else if(color.equals("WHITE") && GameDAO.getGame(gameID).whiteUsername() != null){
+            throw new AlreadyTakenException("Error: already taken");
+        } else if(color.equals("BLACK") && GameDAO.getGame(gameID).blackUsername() != null) {
+            throw new AlreadyTakenException("Error: already taken");
+        } else {
+            GameDAO.updateGame(gameID, color, AuthDAO.getAuth(auth).username());
+        }
+    }
+
     public void clear() {
         AuthDAO.clear();
         UserDAO.clear();
+        GameDAO.clear();
     }
 
 
