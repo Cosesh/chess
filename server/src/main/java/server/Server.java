@@ -54,15 +54,13 @@ public class Server {
 
 
         } catch (BadRequestException ex){
-            var msg = String.format("{ \"message\": \"Error: bad request\" }");
+            var msg = "{ \"message\": \"Error: bad request\" }";
             ctx.status(400).result(msg);
 
         } catch (AlreadyTakenException ex){
-            var msg = String.format("{ \"message\": \"Error: already taken\" }");
+            var msg = "{ \"message\": \"Error: already taken\" }";
             ctx.status(403).result(msg);
 
-        } catch (Exception ex){
-            throw ex;
         }
 
     }
@@ -80,15 +78,13 @@ public class Server {
 
 
         } catch (UnauthorizedException ex){
-            var msg = String.format("{ \"message\": \"Error: unauthorized\" }");
+            var msg = "{ \"message\": \"Error: unauthorized\" }";
             ctx.status(401).result(msg);
 
         }catch (BadRequestException ex){
-            var msg = String.format("{ \"message\": \"Error: bad request\" }");
+            var msg = "{ \"message\": \"Error: bad request\" }";
             ctx.status(400).result(msg);
 
-        } catch (Exception ex){
-            throw ex;
         }
 
     }
@@ -99,11 +95,9 @@ public class Server {
             sessionService.logout(authToken);
 
         } catch (UnauthorizedException ex){
-            var msg = String.format("{ \"message\": \"Error: unauthorized\" }");
+            var msg = "{ \"message\": \"Error: unauthorized\" }";
             ctx.status(401).result(msg);
 
-        } catch (Exception ex){
-            throw ex;
         }
 
     }
@@ -121,15 +115,13 @@ public class Server {
 
 
         } catch (UnauthorizedException ex){
-            var msg = String.format("{ \"message\": \"Error: unauthorized\" }");
+            var msg = "{ \"message\": \"Error: unauthorized\" }";
             ctx.status(401).result(msg);
 
         }catch (BadRequestException ex){
-            var msg = String.format("{ \"message\": \"Error: bad request\" }");
+            var msg = "{ \"message\": \"Error: bad request\" }";
             ctx.status(400).result(msg);
 
-        } catch (Exception ex){
-            throw ex;
         }
     }
 
@@ -155,19 +147,17 @@ public class Server {
 
 
         } catch (UnauthorizedException ex){
-            var msg = String.format("{ \"message\": \"Error: unauthorized\" }");
+            var msg = "{ \"message\": \"Error: unauthorized\" }";
             ctx.status(401).result(msg);
 
         }catch (BadRequestException ex){
-            var msg = String.format("{ \"message\": \"Error: bad request\" }");
+            var msg = "{ \"message\": \"Error: bad request\" }";
             ctx.status(400).result(msg);
 
         } catch (AlreadyTakenException ex) {
-            var msg = String.format("{ \"message\": \"Error: already taken\" }");
+            var msg = "{ \"message\": \"Error: already taken\" }";
             ctx.status(403).result(msg);
 
-        } catch (Exception ex){
-            throw ex;
         }
     }
     private void listGames(Context ctx){
@@ -181,11 +171,9 @@ public class Server {
 
 
         } catch (UnauthorizedException ex){
-            var msg = String.format("{ \"message\": \"Error: unauthorized\" }");
+            var msg = "{ \"message\": \"Error: unauthorized\" }";
             ctx.status(401).result(msg);
 
-        } catch (Exception ex){
-            throw ex;
         }
     }
 
