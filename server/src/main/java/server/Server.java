@@ -30,7 +30,7 @@ public class Server {
 
         // Register your endpoints and exception handlers here.
         
-        server.delete("db", ctx->ctx.result("{}"));
+        server.delete("db", this::clear);
         server.post("user", this::register);
         server.post("session", this::login);
         server.delete("session", this::logout);
@@ -102,6 +102,18 @@ public class Server {
         }
 
     }
+
+    private void clear(Context ctx) {
+        try{
+            sessionService.clear();
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+
+        }
+
+    }
+
 
     public int run(int desiredPort) {
         server.start(desiredPort);

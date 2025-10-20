@@ -61,4 +61,11 @@ public class SessionService {
         }
 
     }
+
+    public void clear() {
+        AuthDAO.clear();
+        UserDAO.clear();
+    }
+
+
 }
