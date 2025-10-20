@@ -3,10 +3,13 @@ package service;
 import dataaccess.GameDataAccess;
 import model.AuthData;
 import model.GameData;
+import model.GameInfo;
 import model.UserData;
 import dataaccess.AuthDataAccess;
 import dataaccess.UserDataAccess;
 
+import java.util.ArrayList;
+import java.util.Objects;
 import java.util.UUID;
 
 public class SessionService {
@@ -89,6 +92,14 @@ public class SessionService {
             throw new AlreadyTakenException("Error: already taken");
         } else {
             GameDAO.updateGame(gameID, color, AuthDAO.getAuth(auth).username());
+        }
+    }
+
+    public ArrayList<GameInfo> listGames(String authToken) throws UnauthorizedException {
+        if(AuthDAO.getAuth(authToken) == null){
+            throw new UnauthorizedException("Error: unauthorized");
+        } else {
+            return GameDAO.listGames();
         }
     }
 

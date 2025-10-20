@@ -1,9 +1,11 @@
 package dataaccess;
 
 import model.GameData;
-import model.UserData;
+import model.GameInfo;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class GameMemoryDataAccess implements GameDataAccess{
     private final HashMap<Integer, GameData> games = new HashMap<>();
@@ -17,13 +19,19 @@ public class GameMemoryDataAccess implements GameDataAccess{
     @Override
     public int createGame(GameData game) {
         nextGameID = nextGameID + 1;
-        games.put(nextGameID, game);
+        GameData add = new GameData(nextGameID, game.whiteUsername(), game.blackUsername(), game.gameName(),game.game());
+        games.put(nextGameID, add);
         return nextGameID;
     }
 
     @Override
-    public void listGames() {
-
+    public ArrayList<GameInfo> listGames() {
+        ArrayList<GameInfo> gamesList = new ArrayList<>();
+        for(GameData game: games.values()){
+            GameInfo add = new GameInfo(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName());
+            gamesList.add(add);
+        }
+        return gamesList;
     }
 
     @Override

@@ -12,6 +12,7 @@ import service.BadRequestException;
 import service.UnauthorizedException;
 import service.SessionService;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public class Server {
@@ -37,6 +38,7 @@ public class Server {
         server.delete("session", this::logout);
         server.post("game", this::createGame);
         server.put("game", this::joinGame);
+        server.get("game", this::listGames);
 
     }
     
@@ -163,6 +165,24 @@ public class Server {
         } catch (AlreadyTakenException ex) {
             var msg = String.format("{ \"message\": \"Error: already taken\" }");
             ctx.status(403).result(msg);
+
+        } catch (Exception ex){
+            throw ex;
+        }
+    }
+    private void listGames(Context ctx){
+        try{
+            String authToken = ctx.header("authorization");
+
+            ArrayList<GameInfo> gamesList = sessionService.listGames(authToken);
+
+            String result = new Gson().toJson(Map.of("games",gamesList));
+            ctx.result(result);
+
+
+        } catch (UnauthorizedException ex){
+            var msg = String.format("{ \"message\": \"Error: unauthorized\" }");
+            ctx.status(401).result(msg);
 
         } catch (Exception ex){
             throw ex;
