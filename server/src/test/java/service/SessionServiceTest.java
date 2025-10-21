@@ -1,31 +1,28 @@
 package service;
 
-import chess.ChessGame;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import model.*;
 import dataaccess.*;
-import service.*;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class SessionServiceTest {
 
 
-    private UserDataAccess UDAO;
-    private AuthDataAccess ADAO;
-    private GameDataAccess GDAO;
+    private UserDataAccess uDAO;
+    private AuthDataAccess aDAO;
+    private GameDataAccess gDAO;
     private SessionService service;
 
     @BeforeEach
     void setup() {
-        UDAO = new UserMemoryDataAccess();
-        ADAO = new AuthMemoryDataAccess();
-        GDAO = new GameMemoryDataAccess();
-        service = new SessionService(UDAO, ADAO, GDAO);
+        uDAO = new UserMemoryDataAccess();
+        aDAO = new AuthMemoryDataAccess();
+        gDAO = new GameMemoryDataAccess();
+        service = new SessionService(uDAO, aDAO, gDAO);
     }
 
     @Test
@@ -33,7 +30,7 @@ class SessionServiceTest {
         //Tests if user is actually added to the server
         var user = new UserData("cosesh", "poopypants11", "em@il.com");
         service.register(user);
-        assertNotNull(UDAO.getUser("cosesh"));
+        assertNotNull(uDAO.getUser("cosesh"));
 
     }
 
@@ -54,7 +51,7 @@ class SessionServiceTest {
         var user = new UserData("cosesh", "poopypants11", "em@il.com");
         service.register(user);
         AuthData auth = service.login(user);
-        assertNotNull(ADAO.getAuth(auth.authToken()));
+        assertNotNull(aDAO.getAuth(auth.authToken()));
 
     }
 
@@ -72,7 +69,7 @@ class SessionServiceTest {
         service.register(user);
         AuthData auth = service.login(user);
         service.logout(auth.authToken());
-        assertNull(ADAO.getAuth(auth.authToken()));
+        assertNull(aDAO.getAuth(auth.authToken()));
     }
 
     @Test
@@ -92,7 +89,7 @@ class SessionServiceTest {
         AuthData auth = service.login(user);
         var game = new GameData(1234,null, null, "poopoo", null);
         service.createGame(game, auth.authToken());
-        assertNotNull(GDAO.getGame(1));
+        assertNotNull(gDAO.getGame(1));
     }
 
     @Test
@@ -118,8 +115,8 @@ class SessionServiceTest {
         service.createGame(game, auth1.authToken());
         service.joinGame(1,auth1.authToken(), "WHITE");
         service.joinGame(1,auth2.authToken(), "BLACK");
-        assertEquals("stinky",GDAO.getGame(1).whiteUsername());
-        assertEquals("loser",GDAO.getGame(1).blackUsername());
+        assertEquals("stinky", gDAO.getGame(1).whiteUsername());
+        assertEquals("loser", gDAO.getGame(1).blackUsername());
     }
 
     @Test
