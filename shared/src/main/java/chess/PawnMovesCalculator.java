@@ -17,21 +17,11 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         ChessPiece pieceChecked2;
         if(color == ChessGame.TeamColor.WHITE && startRow == 7){
             for (int i = -1; i < 2; i++) {
-                if(startCol + i <= 8 && startCol + i >=1) {
-                    checker = new ChessPosition(8, startCol + i);
-                    pieceChecked = board.getPiece(checker);
-                    if (i == 0) {
-                        if (pieceChecked == null) {
-                            newMove = new ChessMove(position, checker, ChessPiece.PieceType.ROOK);
-                            moves.add(newMove);
-                            newMove = new ChessMove(position, checker, ChessPiece.PieceType.QUEEN);
-                            moves.add(newMove);
-                            newMove = new ChessMove(position, checker, ChessPiece.PieceType.BISHOP);
-                            moves.add(newMove);
-                            newMove = new ChessMove(position, checker, ChessPiece.PieceType.KNIGHT);
-                            moves.add(newMove);
-                        }
-                    } else if (pieceChecked != null && pieceChecked.getTeamColor() != color) {
+                if(startCol + i > 8 || startCol + i <1) continue;
+                checker = new ChessPosition(8, startCol + i);
+                pieceChecked = board.getPiece(checker);
+                if (i == 0) {
+                    if (pieceChecked == null) {
                         newMove = new ChessMove(position, checker, ChessPiece.PieceType.ROOK);
                         moves.add(newMove);
                         newMove = new ChessMove(position, checker, ChessPiece.PieceType.QUEEN);
@@ -41,26 +31,25 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
                         newMove = new ChessMove(position, checker, ChessPiece.PieceType.KNIGHT);
                         moves.add(newMove);
                     }
+                } else if (pieceChecked != null && pieceChecked.getTeamColor() != color) {
+                    newMove = new ChessMove(position, checker, ChessPiece.PieceType.ROOK);
+                    moves.add(newMove);
+                    newMove = new ChessMove(position, checker, ChessPiece.PieceType.QUEEN);
+                    moves.add(newMove);
+                    newMove = new ChessMove(position, checker, ChessPiece.PieceType.BISHOP);
+                    moves.add(newMove);
+                    newMove = new ChessMove(position, checker, ChessPiece.PieceType.KNIGHT);
+                    moves.add(newMove);
                 }
             }
         }
         else if(color == ChessGame.TeamColor.BLACK && startRow == 2){
             for (int i = -1; i < 2; i++) {
-                if(startCol + i <= 8 && startCol + i >=1) {
-                    checker = new ChessPosition(1, startCol + i);
-                    pieceChecked = board.getPiece(checker);
-                    if (i == 0) {
-                        if (pieceChecked == null) {
-                            newMove = new ChessMove(position, checker, ChessPiece.PieceType.ROOK);
-                            moves.add(newMove);
-                            newMove = new ChessMove(position, checker, ChessPiece.PieceType.QUEEN);
-                            moves.add(newMove);
-                            newMove = new ChessMove(position, checker, ChessPiece.PieceType.BISHOP);
-                            moves.add(newMove);
-                            newMove = new ChessMove(position, checker, ChessPiece.PieceType.KNIGHT);
-                            moves.add(newMove);
-                        }
-                    } else if (pieceChecked != null && pieceChecked.getTeamColor() != color) {
+                if(startCol + i > 8 || startCol + i <1) continue;
+                checker = new ChessPosition(1, startCol + i);
+                pieceChecked = board.getPiece(checker);
+                if (i == 0) {
+                    if (pieceChecked == null) {
                         newMove = new ChessMove(position, checker, ChessPiece.PieceType.ROOK);
                         moves.add(newMove);
                         newMove = new ChessMove(position, checker, ChessPiece.PieceType.QUEEN);
@@ -70,6 +59,15 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
                         newMove = new ChessMove(position, checker, ChessPiece.PieceType.KNIGHT);
                         moves.add(newMove);
                     }
+                } else if (pieceChecked != null && pieceChecked.getTeamColor() != color) {
+                    newMove = new ChessMove(position, checker, ChessPiece.PieceType.ROOK);
+                    moves.add(newMove);
+                    newMove = new ChessMove(position, checker, ChessPiece.PieceType.QUEEN);
+                    moves.add(newMove);
+                    newMove = new ChessMove(position, checker, ChessPiece.PieceType.BISHOP);
+                    moves.add(newMove);
+                    newMove = new ChessMove(position, checker, ChessPiece.PieceType.KNIGHT);
+                    moves.add(newMove);
                 }
             }
         }
@@ -85,18 +83,17 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
                 }
             }
             for (int i = -1; i < 2; i++) {
-                if(startCol + i <= 8 && startCol + i >=1) {
-                    checker = new ChessPosition(startRow + 1, startCol + i);
-                    pieceChecked = board.getPiece(checker);
-                    if (i == 0) {
-                        if (pieceChecked == null) {
-                            newMove = new ChessMove(position, checker, null);
-                            moves.add(newMove);
-                        }
-                    } else if (pieceChecked != null && pieceChecked.getTeamColor() != color) {
+                if(startCol + i > 8 || startCol + i <1) continue;
+                checker = new ChessPosition(startRow + 1, startCol + i);
+                pieceChecked = board.getPiece(checker);
+                if (i == 0) {
+                    if (pieceChecked == null) {
                         newMove = new ChessMove(position, checker, null);
                         moves.add(newMove);
                     }
+                } else if (pieceChecked != null && pieceChecked.getTeamColor() != color) {
+                    newMove = new ChessMove(position, checker, null);
+                    moves.add(newMove);
                 }
             }
         }
@@ -113,18 +110,17 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
                 }
             }
             for (int i = -1; i < 2; i++) {
-                if(startCol + i <= 8 && startCol + i >= 1) {
-                    checker = new ChessPosition(startRow - 1, startCol + i);
-                    pieceChecked = board.getPiece(checker);
-                    if (i == 0) {
-                        if (pieceChecked == null) {
-                            newMove = new ChessMove(position, checker, null);
-                            moves.add(newMove);
-                        }
-                    } else if (pieceChecked != null && pieceChecked.getTeamColor() != color) {
+                if(startCol + i > 8 || startCol + i < 1) continue;
+                checker = new ChessPosition(startRow - 1, startCol + i);
+                pieceChecked = board.getPiece(checker);
+                if (i == 0) {
+                    if (pieceChecked == null) {
                         newMove = new ChessMove(position, checker, null);
                         moves.add(newMove);
                     }
+                } else if (pieceChecked != null && pieceChecked.getTeamColor() != color) {
+                    newMove = new ChessMove(position, checker, null);
+                    moves.add(newMove);
                 }
             }
         }
