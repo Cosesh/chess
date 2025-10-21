@@ -35,22 +35,22 @@ public class GameMemoryDataAccess implements GameDataAccess{
     }
 
     @Override
-    public void updateGame(int ID, String color, String user) {
-        GameData old = games.get(ID);
+    public void updateGame(int iD, String color, String user) {
+        GameData old = games.get(iD);
         if(color.equals("WHITE")){
             GameData updated = new GameData(old.gameID(), user, old.blackUsername(), old.gameName(), old.game());
-            games.put(ID,updated);
+            games.put(iD,updated);
         } else if(color.equals("BLACK")){
             GameData updated = new GameData(old.gameID(), old.whiteUsername(), user, old.gameName(), old.game());
-            games.put(ID,updated);
+            games.put(iD,updated);
         }
 
 
     }
 
     @Override
-    public GameData getGame(int ID) {
-        return games.get(ID);
+    public GameData getGame(int iD) {
+        return games.get(iD);
     }
 
 }

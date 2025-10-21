@@ -24,10 +24,10 @@ public class Server {
 
 
     public Server() {
-        UserDataAccess UDAO = new UserMemoryDataAccess();
-        AuthDataAccess ADAO = new AuthMemoryDataAccess();
-        GameDataAccess GDAO = new GameMemoryDataAccess();
-        sessionService = new SessionService(UDAO, ADAO, GDAO);
+        UserDataAccess uDAO = new UserMemoryDataAccess();
+        AuthDataAccess aDAO = new AuthMemoryDataAccess();
+        GameDataAccess gDAO = new GameMemoryDataAccess();
+        sessionService = new SessionService(uDAO, aDAO, gDAO);
         server = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
@@ -133,16 +133,16 @@ public class Server {
             var body = serializer.fromJson(reqJson, Map.class);
             String authToken = ctx.header("authorization");
 
-            Double IDdouble = (Double) body.get("gameID");
-            if(IDdouble == null){
+            Double idDouble = (Double) body.get("gameID");
+            if(idDouble == null){
                 throw new BadRequestException("Error: Bad request");
             }
-            int ID = IDdouble.intValue();
+            int iD = idDouble.intValue();
             String playerColor = (String) body.get("playerColor");
             if(playerColor == null || !playerColor.equals("WHITE") && !playerColor.equals("BLACK")){
                 throw new BadRequestException("Error: Bad request");
             }
-            sessionService.joinGame(ID, authToken, playerColor);
+            sessionService.joinGame(iD, authToken, playerColor);
 
 
 

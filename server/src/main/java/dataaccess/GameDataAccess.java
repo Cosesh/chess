@@ -9,7 +9,7 @@ public interface GameDataAccess {
     void clear();
     int createGame(GameData game);
     ArrayList<GameInfo> listGames();
-    void updateGame(int ID, String color, String user);
-    GameData getGame(int ID);
+    void updateGame(int iD, String color, String user);
+    GameData getGame(int iD);
 
 }
