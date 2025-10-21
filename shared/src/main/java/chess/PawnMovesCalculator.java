@@ -17,7 +17,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         ChessPiece pieceChecked2;
         if(color == ChessGame.TeamColor.WHITE && startRow == 7){
             for (int i = -1; i < 2; i++) {
-                if(startCol + i > 8 || startCol + i <1) continue;
+                if(startCol + i > 8 || startCol + i <1) {continue;}
                 checker = new ChessPosition(8, startCol + i);
                 pieceChecked = board.getPiece(checker);
                 if (i == 0) {
@@ -45,7 +45,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         }
         else if(color == ChessGame.TeamColor.BLACK && startRow == 2){
             for (int i = -1; i < 2; i++) {
-                if(startCol + i > 8 || startCol + i <1) continue;
+                if(startCol + i > 8 || startCol + i <1) {continue;}
                 checker = new ChessPosition(1, startCol + i);
                 pieceChecked = board.getPiece(checker);
                 if (i == 0) {
@@ -83,7 +83,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
                 }
             }
             for (int i = -1; i < 2; i++) {
-                if(startCol + i > 8 || startCol + i <1) continue;
+                if(startCol + i > 8 || startCol + i <1) {continue;}
                 checker = new ChessPosition(startRow + 1, startCol + i);
                 pieceChecked = board.getPiece(checker);
                 if (i == 0) {
@@ -110,7 +110,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
                 }
             }
             for (int i = -1; i < 2; i++) {
-                if(startCol + i > 8 || startCol + i < 1) continue;
+                if(startCol + i > 8 || startCol + i < 1) {continue;}
                 checker = new ChessPosition(startRow - 1, startCol + i);
                 pieceChecked = board.getPiece(checker);
                 if (i == 0) {
