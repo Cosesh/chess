@@ -163,7 +163,26 @@ class SessionServiceTest {
         service.createGame(game1, auth.authToken());
         service.createGame(game2, auth.authToken());
         assertThrows(UnauthorizedException.class, () -> service.listGames("unauthorized"));
+    }
+
+
+    @Test
+    void posclear() throws UnauthorizedException, BadRequestException, AlreadyTakenException {
+        //clears database with no error
+        var user = new UserData("cosesh", "poopypants11", "em@il.com");
+        service.register(user);
+        AuthData auth = service.login(user);
+        var game1 = new GameData(1,null, "curry", "poopoo", null);
+        service.createGame(game1,auth.authToken());
+        service.clear();
+        assertTrue(aDAO.getMap().isEmpty());
 
     }
 
+    @Test
+    void negclear() {
+        //tries to clear nonexistent databases
+        service = new SessionService(null,null,null);
+        assertThrows(NullPointerException.class, () -> service.clear());
+    }
 }

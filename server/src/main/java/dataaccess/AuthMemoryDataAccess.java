@@ -27,5 +27,9 @@ public class AuthMemoryDataAccess implements AuthDataAccess{
         return auths.get(authToken);
     }
 
+    public HashMap<String, AuthData> getMap(){
+        return auths;
+    }
+
 
 }
