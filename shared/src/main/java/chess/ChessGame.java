@@ -154,7 +154,7 @@ public class ChessGame {
             for(int j = 1; j <= 8; j++){
                 spotToCheck = new ChessPosition(i,j);
                 pieceToCheck = gameBoard.getPiece(spotToCheck);
-                if(pieceToCheck == null || pieceToCheck.getTeamColor() == teamColor) continue;
+                if(pieceToCheck == null || pieceToCheck.getTeamColor() == teamColor) {continue;}
                 moves = pieceToCheck.pieceMoves(gameBoard, spotToCheck);
                 for(ChessMove move : moves) {
                     if(move.getEndPosition().getRow() == kingSpot.getRow() && move.getEndPosition().getColumn() == kingSpot.getColumn()){
