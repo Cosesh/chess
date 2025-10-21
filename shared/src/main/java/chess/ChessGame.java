@@ -141,7 +141,9 @@ public class ChessGame {
         for(int i = 1; i <= 8; i++){
             for(int j = 1; j <= 8; j++){
                 spotToCheck = new ChessPosition(i,j);
-                if(gameBoard.getPiece(spotToCheck) != null && gameBoard.getPiece(spotToCheck).getPieceType() == ChessPiece.PieceType.KING && gameBoard.getPiece(spotToCheck).getTeamColor() == teamColor){
+                if(gameBoard.getPiece(spotToCheck) != null &&
+                        gameBoard.getPiece(spotToCheck).getPieceType() == ChessPiece.PieceType.KING &&
+                        gameBoard.getPiece(spotToCheck).getTeamColor() == teamColor){
                     kingSpot = spotToCheck;
                     break;
                 }
@@ -152,12 +154,11 @@ public class ChessGame {
             for(int j = 1; j <= 8; j++){
                 spotToCheck = new ChessPosition(i,j);
                 pieceToCheck = gameBoard.getPiece(spotToCheck);
-                if(pieceToCheck != null && pieceToCheck.getTeamColor() != teamColor){
-                    moves = pieceToCheck.pieceMoves(gameBoard, spotToCheck);
-                    for(ChessMove move : moves) {
-                        if(move.getEndPosition().getRow() == kingSpot.getRow() && move.getEndPosition().getColumn() == kingSpot.getColumn()){
-                            return true;
-                        }
+                if(pieceToCheck == null || pieceToCheck.getTeamColor() == teamColor) continue;
+                moves = pieceToCheck.pieceMoves(gameBoard, spotToCheck);
+                for(ChessMove move : moves) {
+                    if(move.getEndPosition().getRow() == kingSpot.getRow() && move.getEndPosition().getColumn() == kingSpot.getColumn()){
+                        return true;
                     }
                 }
             }
