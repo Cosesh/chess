@@ -20,9 +20,7 @@ public class ChessBoard {
     public ChessBoard(ChessBoard copy){
         this.board = new ChessPiece[8][8];
         for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                this.board[i][j] = copy.board[i][j];
-            }
+            System.arraycopy(copy.board[i], 0, this.board[i], 0, 8);
 
         }
     }
@@ -49,8 +47,7 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        ChessPiece piece = board[position.getRow() - 1][position.getColumn() - 1];
-        return piece;
+        return board[position.getRow() - 1][position.getColumn() - 1];
     }
 
 
@@ -60,8 +57,6 @@ public class ChessBoard {
      */
     public void resetBoard() {
 
-
-        board = new ChessPiece[8][8];
 
         board = new ChessPiece[8][8];
         board[0][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
@@ -103,10 +98,10 @@ public class ChessBoard {
 
     @Override
     public String toString() {
-        String toPrint = "";
+        StringBuilder toPrint = new StringBuilder();
         for (int i = 0; i < 8; i++) {
-            toPrint += Arrays.toString(board[i]) + "\n";
+            toPrint.append(Arrays.toString(board[i])).append("\n");
         }
-        return toPrint;
+        return toPrint.toString();
     }
 }

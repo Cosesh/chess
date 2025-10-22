@@ -4,17 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
-/**
- * For a class that can manage a chess game, making moves on a board
- * <p>
- * Note: You can add to this class, but you may not alter
- * signature of the existing methods.
- */
-
-/**
- *
- * Changes check
- */
 
 
 public class ChessGame {
@@ -68,8 +57,8 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        Collection<ChessMove> moves = new ArrayList<ChessMove>();
-        Collection<ChessMove> validMoves = new ArrayList<ChessMove>();
+        Collection<ChessMove> moves;
+        Collection<ChessMove> validMoves = new ArrayList<>();
         ChessPiece pieceChecked = gameBoard.getPiece(startPosition);
         moves = pieceChecked.pieceMoves(gameBoard, startPosition);
         ChessBoard boardChecker;
