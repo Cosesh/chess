@@ -31,7 +31,9 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         return moves;
     }
 
-    private static void normalMove(ChessBoard board, ChessPosition position, int startCol, int row, Collection<ChessMove> moves, ChessGame.TeamColor color) {
+    private static void normalMove(ChessBoard board, ChessPosition position,
+                                   int startCol, int row, Collection<ChessMove> moves,
+                                   ChessGame.TeamColor color) {
         ChessPiece pieceChecked;
         ChessPosition checker;
         ChessMove newMove;
@@ -51,7 +53,8 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         }
     }
 
-    private static void initialMove(ChessBoard board, ChessPosition position, int row1, int row2, int startCol, Collection<ChessMove> moves) {
+    private static void initialMove(ChessBoard board, ChessPosition position, int row1,
+                                    int row2, int startCol, Collection<ChessMove> moves) {
         ChessPosition checker2;
         ChessPiece pieceChecked;
         ChessPosition checker;
