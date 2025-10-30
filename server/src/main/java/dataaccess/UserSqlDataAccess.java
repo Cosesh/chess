@@ -26,7 +26,7 @@ public class UserSqlDataAccess implements UserDataAccess{
     public void createUser(UserData user) throws DataAccessException {
         if(user.username() != null){
             var u = new UserData(user.username(), user.password(), user.email());
-            executeUpdate("INSERT INTO 'users' (username, password, email) VALUES (?, ?, ?)", u.username(), u.password(), u.email());
+            executeUpdate("INSERT INTO users (username, password, email) VALUES (?, ?, ?)", u.username(), u.password(), u.email());
         }
 
     }
@@ -34,7 +34,7 @@ public class UserSqlDataAccess implements UserDataAccess{
     @Override
     public UserData getUser(String username) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement("SELECT password, email from 'users' WHERE username = ?")) {
+            try (var ps = conn.prepareStatement("SELECT * from users WHERE username = ?")) {
                 ps.setString(1, username);
                 try (ResultSet rs = ps.executeQuery()) {
                     if(rs.next()) {
