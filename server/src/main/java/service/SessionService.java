@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.DataAccessException;
 import dataaccess.GameDataAccess;
 import model.AuthData;
 import model.GameData;
@@ -29,7 +30,7 @@ public class SessionService {
         return UUID.randomUUID().toString();
     }
 
-    public AuthData register(UserData user) throws AlreadyTakenException, BadRequestException {
+    public AuthData register(UserData user) throws AlreadyTakenException, BadRequestException, DataAccessException {
 
         if(userDAO.getUser(user.username()) != null){
             throw new AlreadyTakenException("Error: already taken");
@@ -44,7 +45,7 @@ public class SessionService {
 
     }
 
-    public AuthData login(UserData user) throws UnauthorizedException, BadRequestException {
+    public AuthData login(UserData user) throws UnauthorizedException, BadRequestException, DataAccessException {
         if(user.username() == null || user.password() == null){
             throw new BadRequestException("Error: bad request");
         }
@@ -103,7 +104,7 @@ public class SessionService {
         }
     }
 
-    public void clear() {
+    public void clear() throws DataAccessException {
         authDAO.clear();
         userDAO.clear();
         gameDAO.clear();
