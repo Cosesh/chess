@@ -34,7 +34,7 @@ public class UserSqlDataAccess implements UserDataAccess{
     @Override
     public UserData getUser(String username) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement("SELECT password, email from 'users' WHERE username = 'username'")) {
+            try (var ps = conn.prepareStatement("SELECT password, email from 'users' WHERE username = ?")) {
                 ps.setString(1, username);
                 try (ResultSet rs = ps.executeQuery()) {
                     if(rs.next()) {
@@ -104,4 +104,7 @@ public class UserSqlDataAccess implements UserDataAccess{
             throw new DataAccessException("Error: Data Access Exception");
         }
     }
+
+
+
 }
