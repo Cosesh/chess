@@ -36,6 +36,7 @@ public class PieceHelper {
             }
         }
         return moves;
+
     }
 
     public Collection<ChessMove> slideMoveLoop (int[][] directions,
