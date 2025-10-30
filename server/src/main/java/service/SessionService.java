@@ -60,7 +60,7 @@ public class SessionService {
         }
     }
 
-    public void logout(String auth) throws UnauthorizedException {
+    public void logout(String auth) throws UnauthorizedException, DataAccessException {
 
         var test = authDAO.getAuth(auth);
         if(authDAO.getAuth(auth) == null){

@@ -6,9 +6,9 @@ import java.util.HashMap;
 
 public interface AuthDataAccess {
 
-    void clear();
-    void createAuth(AuthData auth);
-    void deleteAuth(String authToken);
+    void clear() throws DataAccessException;
+    void createAuth(AuthData auth) throws DataAccessException;
+    void deleteAuth(String authToken) throws DataAccessException;
     AuthData getAuth(String authToken);
     HashMap<String,AuthData> getMap();
 }

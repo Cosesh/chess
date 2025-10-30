@@ -12,7 +12,7 @@ import static java.sql.Types.NULL;
  * and getUser how to finish
  */
 
-public class UserSqlDataAccess implements UserDataAccess{
+public class UserSqlDataAccess implements UserDataAccess {
 
     public UserSqlDataAccess() throws DataAccessException {
         configureDatabase();

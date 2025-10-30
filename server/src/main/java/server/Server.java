@@ -104,6 +104,9 @@ public class Server {
             var msg = "{ \"message\": \"Error: unauthorized\" }";
             ctx.status(401).result(msg);
 
+        } catch (DataAccessException ex){
+            var msg = "{ \"message\": \"Error: Data Access\" }";
+            ctx.status(500).result(msg);
         }
 
     }
