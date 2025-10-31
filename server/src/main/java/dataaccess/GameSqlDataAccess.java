@@ -8,7 +8,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import static java.sql.Types.NULL;
 
 
 public class GameSqlDataAccess implements GameDataAccess{
@@ -17,6 +16,17 @@ public class GameSqlDataAccess implements GameDataAccess{
 
     public GameSqlDataAccess() throws DataAccessException {
         helper = new SqlHelper();
+        String[] createStatements = {
+                """
+            CREATE TABLE IF NOT EXISTS  games (
+              `gameID` int PRIMARY KEY AUTO_INCREMENT,
+              `whiteUsername` varchar(25),
+              `blackUsername` varchar(25),
+              `gameName` varchar(255) NOT NULL,
+              `game` text
+            );
+            """
+        };
         helper.configureDatabase(createStatements);
     }
     @Override
@@ -56,7 +66,8 @@ public class GameSqlDataAccess implements GameDataAccess{
                 try (ResultSet rs = ps.executeQuery()) {
                     while(rs.next()) {
                         var game = readGame(rs);
-                        GameInfo info = new GameInfo(game.gameID(),game.whiteUsername(), game.blackUsername(),game.gameName());
+                        GameInfo info = new GameInfo(game.gameID(),game.whiteUsername(),
+                                game.blackUsername(),game.gameName());
                         gamesList.add(info);
                     }
                 }
@@ -108,19 +119,6 @@ public class GameSqlDataAccess implements GameDataAccess{
         return new GameData(gameID,whiteUsername,blackUsername,gameName, game);
 
     }
-
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS  games (
-              `gameID` int PRIMARY KEY AUTO_INCREMENT,
-              `whiteUsername` varchar(25),
-              `blackUsername` varchar(25),
-              `gameName` varchar(255) NOT NULL,
-              `game` text
-            );
-            """
-    };
-
 
 
 }

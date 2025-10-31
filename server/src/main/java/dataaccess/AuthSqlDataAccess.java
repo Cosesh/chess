@@ -6,13 +6,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-import static java.sql.Types.NULL;
 
 public class AuthSqlDataAccess implements AuthDataAccess{
 
     private final SqlHelper helper;
     public AuthSqlDataAccess() throws DataAccessException {
         helper = new SqlHelper();
+        String[] createStatements = {
+                """
+            CREATE TABLE IF NOT EXISTS  auths (
+              `authToken` varchar(255) PRIMARY KEY,
+              `username` varchar(25) NOT NULL
+            );
+            """
+        };
         helper.configureDatabase(createStatements);
     }
     @Override
@@ -24,7 +31,8 @@ public class AuthSqlDataAccess implements AuthDataAccess{
     public void createAuth(AuthData auth) throws DataAccessException {
 
         var a = new AuthData(auth.authToken(), auth.username());
-        helper.executeUpdate("INSERT INTO auths (authToken, username) VALUES (?, ?)", a.authToken(), a.username());
+        helper.executeUpdate("INSERT INTO auths (authToken, username) VALUES (?, ?)",
+                a.authToken(), a.username());
 
     }
 
@@ -67,12 +75,4 @@ public class AuthSqlDataAccess implements AuthDataAccess{
         return null;
     }
 
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS  auths (
-              `authToken` varchar(255) PRIMARY KEY,
-              `username` varchar(25) NOT NULL
-            );
-            """
-    };
 }
