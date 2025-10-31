@@ -49,7 +49,6 @@ class UserSqlDataAccessTest {
 
     @Test
     void negGetUser() {
-
         assertThrows(DataAccessException.class, ()-> {UserData test = new UserData("Emilee", "HewbrewRox123", "emileeejensen@byu.edu");
             uDAO.createUser(test);
             uDAO.getUser(null);});
