@@ -23,7 +23,7 @@ class UserSqlDataAccessTest {
     }
 
     @Test
-    void poscreateUser()  {
+    void posCreateUser()  {
 
         assertDoesNotThrow(()->{
             UserData test = new UserData("Hewbrewgirl67", "HewbrewRox123", "emileejensen@byu.edu");
@@ -32,11 +32,27 @@ class UserSqlDataAccessTest {
     }
 
     @Test
-    void posgetUser() throws DataAccessException {
+    void negCreateUser()  {
+        assertThrows(DataAccessException.class,()->{
+            UserData test = new UserData(null, "HewbrewRox123", "emileejensen@byu.edu");
+            uDAO.createUser(test);});
+    }
+
+    @Test
+    void posGetUser() {
 
         assertDoesNotThrow(()-> {UserData test = new UserData("Emilee", "HewbrewRox123", "emileeejensen@byu.edu");
             uDAO.createUser(test);
             assertEquals(uDAO.getUser("Emilee"),test);});
+
+    }
+
+    @Test
+    void negGetUser() {
+
+        assertThrows(DataAccessException.class, ()-> {UserData test = new UserData("Emilee", "HewbrewRox123", "emileeejensen@byu.edu");
+            uDAO.createUser(test);
+            uDAO.getUser(null);});
 
     }
 }

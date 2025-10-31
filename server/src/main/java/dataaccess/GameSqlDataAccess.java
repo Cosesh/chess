@@ -10,19 +10,25 @@ import java.util.ArrayList;
 
 import static java.sql.Types.NULL;
 
+
 public class GameSqlDataAccess implements GameDataAccess{
+
+    private final SqlHelper helper;
+
     public GameSqlDataAccess() throws DataAccessException {
-        configureDatabase();
+        helper = new SqlHelper();
+        helper.configureDatabase(createStatements);
     }
     @Override
     public void clear() throws DataAccessException {
-        executeCommand("DELETE from games");
+        helper.executeCommand("DELETE from games");
     }
 
     @Override
     public int createGame(String gameName) throws DataAccessException {
+        if(gameName == null){throw new DataAccessException("Data");}
         ChessGame game = new ChessGame();
-        executeUpdate("INSERT INTO games (gameName, game) " +
+        helper.executeUpdate("INSERT INTO games (gameName, game) " +
                         "VALUES (?, ?)",
                 gameName,
                 game.toString());
@@ -35,8 +41,8 @@ public class GameSqlDataAccess implements GameDataAccess{
                     }
                 }
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new DataAccessException("Data Access Exception");
         }
         return 0;
 
@@ -55,8 +61,8 @@ public class GameSqlDataAccess implements GameDataAccess{
                     }
                 }
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new DataAccessException("Data Access Exception");
         }
 
         return gamesList;
@@ -64,17 +70,19 @@ public class GameSqlDataAccess implements GameDataAccess{
 
     @Override
     public void updateGame(int iD, String color, String user) throws DataAccessException {
+        if(user == null){throw new DataAccessException("Data");}
         if(color.equals("WHITE")){
-            executeUpdate("UPDATE games SET whiteUsername = ? WHERE gameID = ? ", user, iD);
+            helper.executeUpdate("UPDATE games SET whiteUsername = ? WHERE gameID = ? ", user, iD);
 
         } else if(color.equals("BLACK")){
-            executeUpdate("UPDATE games SET blackUsername = ? WHERE gameID = ? ", user, iD);
+            helper.executeUpdate("UPDATE games SET blackUsername = ? WHERE gameID = ? ", user, iD);
         }
 
     }
 
     @Override
     public GameData getGame(int iD) throws DataAccessException {
+        if(iD < 0){throw new DataAccessException("Data");}
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement("SELECT * from games WHERE gameID = ?")) {
                 ps.setInt(1, iD);
@@ -84,8 +92,8 @@ public class GameSqlDataAccess implements GameDataAccess{
                     }
                 }
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new DataAccessException("Data Access Exception");
         }
         return  null;
     }
@@ -101,33 +109,6 @@ public class GameSqlDataAccess implements GameDataAccess{
 
     }
 
-    private void executeUpdate(String statement, Object... params) throws DataAccessException{
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    else if (param == null) ps.setNull(i + 1, NULL);
-
-                }
-                ps.executeUpdate();
-            }
-        } catch (Exception e) {
-            throw new DataAccessException("Error: Data Access Exception");
-        }
-    }
-
-    private void executeCommand(String statement) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement(statement)) {
-                preparedStatement.executeUpdate();
-            }
-        } catch (Exception e) {
-            throw new DataAccessException("Error: Data Access Exception");
-        }
-    }
-
     private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS  games (
@@ -140,17 +121,6 @@ public class GameSqlDataAccess implements GameDataAccess{
             """
     };
 
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (Exception e) {
-            throw new DataAccessException("Error: Data Access Exception");
-        }
-    }
+
 
 }

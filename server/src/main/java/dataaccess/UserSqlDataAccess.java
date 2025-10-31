@@ -14,25 +14,28 @@ import static java.sql.Types.NULL;
 
 public class UserSqlDataAccess implements UserDataAccess {
 
+    private final SqlHelper helper;
+
     public UserSqlDataAccess() throws DataAccessException {
-        configureDatabase();
+        helper = new SqlHelper();
+        helper.configureDatabase(createStatements);
     }
     @Override
     public void clear() throws DataAccessException {
-        executeCommand("DELETE from users");
+        helper.executeCommand("DELETE from users");
     }
 
     @Override
     public void createUser(UserData user) throws DataAccessException {
-        if(user.username() != null){
+        if(user.username() == null){throw new DataAccessException("Exception");}
             var u = new UserData(user.username(), user.password(), user.email());
-            executeUpdate("INSERT INTO users (username, password, email) VALUES (?, ?, ?)", u.username(), u.password(), u.email());
-        }
+            helper.executeUpdate("INSERT INTO users (username, password, email) VALUES (?, ?, ?)", u.username(), u.password(), u.email());
 
     }
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
+        if(username == null){throw new DataAccessException("Exception");}
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement("SELECT * from users WHERE username = ?")) {
                 ps.setString(1, username);
@@ -42,8 +45,8 @@ public class UserSqlDataAccess implements UserDataAccess {
                     }
                 }
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new DataAccessException("Data Access Exception");
         }
         return  null;
     }
@@ -55,33 +58,6 @@ public class UserSqlDataAccess implements UserDataAccess {
         return new UserData(username, password, email);
     }
 
-
-    private void executeUpdate(String statement, Object... params) throws DataAccessException{
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param == null) ps.setNull(i + 1, NULL);
-
-                }
-                ps.executeUpdate();
-            }
-        } catch (Exception e) {
-            throw new DataAccessException("Error: Data Access Exception");
-        }
-    }
-
-    private void executeCommand(String statement) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement(statement)) {
-                preparedStatement.executeUpdate();
-            }
-        } catch (Exception e) {
-            throw new DataAccessException("Error: Data Access Exception");
-        }
-    }
-
     private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS  users (
@@ -91,21 +67,4 @@ public class UserSqlDataAccess implements UserDataAccess {
             );
             """
     };
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (Exception e) {
-            throw new DataAccessException("Error: Data Access Exception");
-        }
-    }
-
-
-
-
 }

@@ -22,14 +22,22 @@ class AuthSqlDataAccessTest {
     }
 
     @Test
-    void poscreateAuth() {
+    void posCreateAuth() {
         assertDoesNotThrow(()-> {AuthData test = new AuthData("12345", "stupidhead");
             aDAO.createAuth(test);});
 
     }
 
     @Test
-    void posdeleteAuth() {
+    void negCreateAuth() {
+        assertThrows(DataAccessException.class, ()-> {AuthData test = new AuthData(null, "stupidhead");
+            aDAO.createAuth(test);});
+    }
+
+
+
+    @Test
+    void posDeleteAuth() {
         assertDoesNotThrow(()-> {AuthData test = new AuthData("12345", "stupidhead");
             AuthData test1 = new AuthData("54321", "idiot");
             aDAO.createAuth(test);
@@ -40,10 +48,29 @@ class AuthSqlDataAccessTest {
     }
 
     @Test
-    void posgetAuth() {
+    void negDeleteAuth() {
+        assertThrows(DataAccessException.class, ()-> {AuthData test = new AuthData("12345", "stupidhead");
+            AuthData test1 = new AuthData("54321", "idiot");
+            aDAO.createAuth(test);
+            aDAO.createAuth(test1);
+            aDAO.deleteAuth(null);});
+
+
+    }
+
+    @Test
+    void posGetAuth() {
         assertDoesNotThrow(()->{AuthData test = new AuthData("12345", "stupidhead");
             aDAO.createAuth(test);
             assertEquals(aDAO.getAuth("12345"), test);});
+
+    }
+
+    @Test
+    void negGetAuth() {
+        assertThrows(DataAccessException.class, ()->{AuthData test = new AuthData("12345", "stupidhead");
+            aDAO.createAuth(test);
+            aDAO.getAuth(null);});
 
     }
 }

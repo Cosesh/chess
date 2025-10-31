@@ -10,32 +10,37 @@ import static java.sql.Types.NULL;
 
 public class AuthSqlDataAccess implements AuthDataAccess{
 
+    private final SqlHelper helper;
     public AuthSqlDataAccess() throws DataAccessException {
-        configureDatabase();
+        helper = new SqlHelper();
+        helper.configureDatabase(createStatements);
     }
     @Override
     public void clear() throws DataAccessException {
-        executeCommand("DELETE from auths");
+        helper.executeCommand("DELETE from auths");
     }
 
     @Override
     public void createAuth(AuthData auth) throws DataAccessException {
-        if(auth.authToken() != null) {
-            var a = new AuthData(auth.authToken(), auth.username());
-            executeUpdate("INSERT INTO auths (authToken, username) VALUES (?, ?)", a.authToken(), a.username());
-        }
+
+        var a = new AuthData(auth.authToken(), auth.username());
+        helper.executeUpdate("INSERT INTO auths (authToken, username) VALUES (?, ?)", a.authToken(), a.username());
 
     }
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
-        if(authToken != null) {
-            executeUpdate("DELETE FROM auths WHERE authToken = ?", authToken);
+        if(authToken == null){
+            throw new DataAccessException("Data Exception");
         }
+        helper.executeUpdate("DELETE FROM auths WHERE authToken = ?", authToken);
     }
 
     @Override
-    public AuthData getAuth(String authToken) {
+    public AuthData getAuth(String authToken) throws DataAccessException {
+        if(authToken == null) {
+            throw new DataAccessException("Data Access Exception");
+        }
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement("SELECT * from auths WHERE authToken = ?")) {
                 ps.setString(1, authToken);
@@ -45,8 +50,8 @@ public class AuthSqlDataAccess implements AuthDataAccess{
                     }
                 }
             }
-        } catch (SQLException | DataAccessException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new DataAccessException("Data Access Exception");
         }
         return  null;
     }
@@ -62,32 +67,6 @@ public class AuthSqlDataAccess implements AuthDataAccess{
         return null;
     }
 
-    private void executeUpdate(String statement, Object... params) throws DataAccessException{
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param == null) ps.setNull(i + 1, NULL);
-
-                }
-                ps.executeUpdate();
-            }
-        } catch (Exception e) {
-            throw new DataAccessException("Error: Data Access Exception");
-        }
-    }
-
-    private void executeCommand(String statement) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement(statement)) {
-                preparedStatement.executeUpdate();
-            }
-        } catch (Exception e) {
-            throw new DataAccessException("Error: Data Access Exception");
-        }
-    }
-
     private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS  auths (
@@ -96,19 +75,4 @@ public class AuthSqlDataAccess implements AuthDataAccess{
             );
             """
     };
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (Exception e) {
-            throw new DataAccessException("Error: Data Access Exception");
-        }
-    }
-
-
 }

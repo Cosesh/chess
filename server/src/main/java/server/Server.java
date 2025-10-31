@@ -210,9 +210,9 @@ public class Server {
         try{
             sessionService.clear();
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-
+        } catch (DataAccessException ex){
+            var msg = "{ \"message\": \"Error: Data Access\" }";
+            ctx.status(500).result(msg);
         }
     }
 
