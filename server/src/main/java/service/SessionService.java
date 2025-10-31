@@ -96,7 +96,7 @@ public class SessionService {
         }
     }
 
-    public ArrayList<GameInfo> listGames(String authToken) throws UnauthorizedException {
+    public ArrayList<GameInfo> listGames(String authToken) throws UnauthorizedException, DataAccessException {
         if(authDAO.getAuth(authToken) == null){
             throw new UnauthorizedException("Error: unauthorized");
         } else {
