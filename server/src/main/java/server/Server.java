@@ -122,9 +122,11 @@ public class Server {
 
     private void createGame(Context ctx) {
         try{
-            String gameName = ctx.body();
+            var serializer = new Gson();
+            String reqJson = ctx.body();
             String authToken = ctx.header("authorization");
-            var gameID = sessionService.createGame(gameName, authToken);
+            var req = serializer.fromJson(reqJson, GameName.class);
+            var gameID = sessionService.createGame(req, authToken);
             String result = "{ \"gameID\": " + gameID + "}";
             ctx.result(result);
 

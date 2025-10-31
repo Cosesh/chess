@@ -2,12 +2,10 @@ package service;
 
 import dataaccess.DataAccessException;
 import dataaccess.GameDataAccess;
-import model.AuthData;
-import model.GameData;
-import model.GameInfo;
-import model.UserData;
+import model.*;
 import dataaccess.AuthDataAccess;
 import dataaccess.UserDataAccess;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -37,8 +35,9 @@ public class SessionService {
         }else if(user.password() == null){
             throw new BadRequestException("Error: bad request");
         }else {
-            AuthData auth = new AuthData(generateToken(), user.username());
-            userDAO.createUser(user);
+            var hashedUser = new UserData(user.username(), hashPassword(user.password()), user.email());
+            AuthData auth = new AuthData(generateToken(), hashedUser.username());
+            userDAO.createUser(hashedUser);
             authDAO.createAuth(auth);
             return auth;
         }
@@ -49,9 +48,8 @@ public class SessionService {
         if(user.username() == null || user.password() == null){
             throw new BadRequestException("Error: bad request");
         }
-        else if(userDAO.getUser(user.username()) == null){
-            throw new UnauthorizedException("Error: unauthorized");
-        } else if (!userDAO.getUser(user.username()).password().equals(user.password())) {
+        var userData = userDAO.getUser(user.username());
+        if(userData == null || !checkHash(user.password(), userData.password())){
             throw new UnauthorizedException("Error: unauthorized");
         } else {
             AuthData auth = new AuthData(generateToken(), user.username());
@@ -71,13 +69,13 @@ public class SessionService {
 
     }
 
-    public int createGame(String gameName, String auth) throws BadRequestException, UnauthorizedException, DataAccessException {
-        if(gameName.equals("{}")) {
+    public int createGame(GameName gameName, String auth) throws BadRequestException, UnauthorizedException, DataAccessException {
+        if(gameName.gameName() == null) {
             throw new BadRequestException("Error: Bad request");
         } else if(authDAO.getAuth(auth) == null){
             throw new UnauthorizedException("Error: unauthorized");
         } else {
-            return gameDAO.createGame(gameName);
+            return gameDAO.createGame(gameName.gameName());
 
         }
     }
@@ -102,6 +100,14 @@ public class SessionService {
         } else {
             return gameDAO.listGames();
         }
+    }
+
+    private String hashPassword(String textPassword){
+        return BCrypt.hashpw(textPassword,BCrypt.gensalt());
+    }
+
+    private boolean checkHash(String textPassword, String hashedPassword){
+        return BCrypt.checkpw(textPassword, hashedPassword);
     }
 
     public void clear() throws DataAccessException {

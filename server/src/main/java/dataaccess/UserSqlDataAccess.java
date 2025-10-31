@@ -1,7 +1,6 @@
 package dataaccess;
 
 import model.UserData;
-import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,7 +26,7 @@ public class UserSqlDataAccess implements UserDataAccess {
     public void createUser(UserData user) throws DataAccessException {
         if(user.username() != null){
             var u = new UserData(user.username(), user.password(), user.email());
-            executeUpdate("INSERT INTO users (username, password, email) VALUES (?, ?, ?)", u.username(), hashPassword(u.password()), u.email());
+            executeUpdate("INSERT INTO users (username, password, email) VALUES (?, ?, ?)", u.username(), u.password(), u.email());
         }
 
     }
@@ -106,10 +105,6 @@ public class UserSqlDataAccess implements UserDataAccess {
         }
     }
 
-    private String hashPassword(String textPassword) {
-        return BCrypt.hashpw(textPassword, BCrypt.gensalt());
-
-    }
 
 
 

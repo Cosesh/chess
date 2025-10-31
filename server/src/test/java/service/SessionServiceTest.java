@@ -93,7 +93,7 @@ class SessionServiceTest {
         assertDoesNotThrow(()-> {var user = new UserData("cosesh", "poopypants11", "em@il.com");
             service.register(user);
             AuthData auth = service.login(user);
-            var gameName = "My Game";
+            var gameName = new GameName("My Game");
             service.createGame(gameName, auth.authToken());
             assertNotNull(gDAO.getGame(1));});
     }
@@ -118,7 +118,7 @@ class SessionServiceTest {
             service.register(user2);
             AuthData auth1 = service.login(user1);
             AuthData auth2 = service.login(user2);
-            var gameName = "My Game";
+            var gameName = new GameName("My Game");
             service.createGame(gameName, auth1.authToken());
             service.joinGame(1,auth1.authToken(), "WHITE");
             service.joinGame(1,auth2.authToken(), "BLACK");
@@ -138,7 +138,7 @@ class SessionServiceTest {
             AuthData auth1 = service.login(user1);
             AuthData auth2 = service.login(user2);
             AuthData auth3 = service.login(user3);
-            var gameName = "My Game";
+            var gameName = new GameName("My Game");
             service.createGame(gameName, auth1.authToken());
             service.joinGame(1,auth1.authToken(), "WHITE");
             service.joinGame(1,auth2.authToken(), "BLACK");
@@ -153,8 +153,8 @@ class SessionServiceTest {
         assertDoesNotThrow(()-> {var user = new UserData("cosesh", "poopypants11", "em@il.com");
             service.register(user);
             AuthData auth = service.login(user);
-            var game1 = "Game 1";
-            var game2 = "Game 2";
+            var game1 = new GameName("Game 1");
+            var game2 = new GameName("Game 2");
             service.createGame(game1, auth.authToken());
             service.createGame(game2, auth.authToken());
             var gamesList = new ArrayList<GameInfo>();
@@ -172,8 +172,8 @@ class SessionServiceTest {
         assertThrows(UnauthorizedException.class, () -> {var user = new UserData("cosesh", "poopypants11", "em@il.com");
             service.register(user);
             AuthData auth = service.login(user);
-            var game1 = "Game 1";
-            var game2 = "Game 2";
+            var game1 = new GameName("Game 1");
+            var game2 = new GameName("Game 2");
             service.createGame(game1, auth.authToken());
             service.createGame(game2, auth.authToken());
             service.listGames("unauthorized");});
@@ -188,7 +188,7 @@ class SessionServiceTest {
         assertDoesNotThrow(()-> {var user = new UserData("cosesh", "poopypants11", "em@il.com");
             service.register(user);
             AuthData auth = service.login(user);
-            var game1 = "Game 1";
+            var game1 = new GameName("Game 1");
             service.createGame(game1,auth.authToken());
             service.clear();
             assertTrue(aDAO.getMap().isEmpty());});
