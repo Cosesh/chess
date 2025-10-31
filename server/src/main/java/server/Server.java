@@ -19,14 +19,23 @@ public class Server {
 
     private final Javalin server;
     private final SessionService sessionService;
+    private UserDataAccess uDAO;
+    private AuthDataAccess aDAO;
+    private GameDataAccess gDAO;
 
 
 
 
     public Server() {
-        UserDataAccess uDAO = new UserMemoryDataAccess();
-        AuthDataAccess aDAO = new AuthMemoryDataAccess();
-        GameDataAccess gDAO = new GameMemoryDataAccess();
+        try{
+           uDAO = new UserSqlDataAccess();
+           aDAO = new AuthSqlDataAccess();
+           gDAO = new GameSqlDataAccess();
+
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+
         sessionService = new SessionService(uDAO, aDAO, gDAO);
         server = Javalin.create(config -> config.staticFiles.add("web"));
 
@@ -113,11 +122,9 @@ public class Server {
 
     private void createGame(Context ctx) {
         try{
-            var serializer = new Gson();
-            String reqJson = ctx.body();
-            var game = serializer.fromJson(reqJson, GameData.class);
+            String gameName = ctx.body();
             String authToken = ctx.header("authorization");
-            var gameID = sessionService.createGame(game, authToken);
+            var gameID = sessionService.createGame(gameName, authToken);
             String result = "{ \"gameID\": " + gameID + "}";
             ctx.result(result);
 
@@ -131,6 +138,9 @@ public class Server {
             var msg = "{ \"message\": \"Error: bad request\" }";
             ctx.status(400).result(msg);
 
+        } catch (DataAccessException ex){
+            var msg = "{ \"message\": \"Error: Data Access\" }";
+            ctx.status(500).result(msg);
         }
     }
 
@@ -167,6 +177,9 @@ public class Server {
             var msg = "{ \"message\": \"Error: already taken\" }";
             ctx.status(403).result(msg);
 
+        } catch (DataAccessException ex){
+            var msg = "{ \"message\": \"Error: Data Access\" }";
+            ctx.status(500).result(msg);
         }
     }
     private void listGames(Context ctx){

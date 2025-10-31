@@ -71,18 +71,18 @@ public class SessionService {
 
     }
 
-    public int createGame(GameData game, String auth) throws BadRequestException, UnauthorizedException {
-        if(game.gameName() == null) {
+    public int createGame(String gameName, String auth) throws BadRequestException, UnauthorizedException, DataAccessException {
+        if(gameName.equals("{}")) {
             throw new BadRequestException("Error: Bad request");
         } else if(authDAO.getAuth(auth) == null){
             throw new UnauthorizedException("Error: unauthorized");
         } else {
-            return gameDAO.createGame(game);
+            return gameDAO.createGame(gameName);
 
         }
     }
 
-    public void joinGame(int gameID, String auth, String color) throws UnauthorizedException, BadRequestException, AlreadyTakenException {
+    public void joinGame(int gameID, String auth, String color) throws UnauthorizedException, BadRequestException, AlreadyTakenException, DataAccessException {
         if(authDAO.getAuth(auth) == null) {
             throw new UnauthorizedException("Error: unauthorized");
         } else if(gameID <= 0 || gameDAO.getGame(gameID) == null){

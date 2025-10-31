@@ -1,5 +1,7 @@
 package chess;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
@@ -241,11 +243,12 @@ public class ChessGame {
         return Objects.hash(colorTurn, gameBoard);
     }
 
+
+    public static ChessGame fromString (String serializedGame) {
+        return new Gson().fromJson(serializedGame, ChessGame.class);
+    }
     @Override
     public String toString() {
-        return "ChessGame{" +
-                "colorTurn=" + colorTurn +
-                ", gameBoard=" + gameBoard +
-                '}';
+        return new Gson().toJson(this);
     }
 }

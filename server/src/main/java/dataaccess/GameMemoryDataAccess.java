@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.GameData;
 import model.GameInfo;
 
@@ -17,9 +18,9 @@ public class GameMemoryDataAccess implements GameDataAccess{
     }
 
     @Override
-    public int createGame(GameData game) {
+    public int createGame(String gameName) {
         nextGameID = nextGameID + 1;
-        GameData add = new GameData(nextGameID, game.whiteUsername(), game.blackUsername(), game.gameName(),game.game());
+        GameData add = new GameData(nextGameID, null, null, gameName ,new ChessGame());
         games.put(nextGameID, add);
         return nextGameID;
     }
