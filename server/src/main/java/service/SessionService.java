@@ -28,7 +28,8 @@ public class SessionService {
         return UUID.randomUUID().toString();
     }
 
-    public AuthData register(UserData user) throws AlreadyTakenException, BadRequestException, DataAccessException {
+    public AuthData register(UserData user) throws AlreadyTakenException, BadRequestException,
+            DataAccessException {
 
         if(userDAO.getUser(user.username()) != null){
             throw new AlreadyTakenException("Error: already taken");
@@ -44,7 +45,8 @@ public class SessionService {
 
     }
 
-    public AuthData login(UserData user) throws UnauthorizedException, BadRequestException, DataAccessException {
+    public AuthData login(UserData user) throws UnauthorizedException, BadRequestException,
+            DataAccessException {
         if(user.username() == null || user.password() == null){
             throw new BadRequestException("Error: bad request");
         }
@@ -69,7 +71,8 @@ public class SessionService {
 
     }
 
-    public int createGame(GameName gameName, String auth) throws BadRequestException, UnauthorizedException, DataAccessException {
+    public int createGame(GameName gameName, String auth) throws BadRequestException,
+            UnauthorizedException, DataAccessException {
         if(gameName.gameName() == null) {
             throw new BadRequestException("Error: Bad request");
         } else if(authDAO.getAuth(auth) == null){
@@ -80,7 +83,8 @@ public class SessionService {
         }
     }
 
-    public void joinGame(int gameID, String auth, String color) throws UnauthorizedException, BadRequestException, AlreadyTakenException, DataAccessException {
+    public void joinGame(int gameID, String auth, String color) throws UnauthorizedException,
+            BadRequestException, AlreadyTakenException, DataAccessException {
         if(authDAO.getAuth(auth) == null) {
             throw new UnauthorizedException("Error: unauthorized");
         } else if(gameID <= 0 || gameDAO.getGame(gameID) == null){
@@ -94,7 +98,8 @@ public class SessionService {
         }
     }
 
-    public ArrayList<GameInfo> listGames(String authToken) throws UnauthorizedException, DataAccessException {
+    public ArrayList<GameInfo> listGames(String authToken) throws UnauthorizedException,
+            DataAccessException {
         if(authDAO.getAuth(authToken) == null){
             throw new UnauthorizedException("Error: unauthorized");
         } else {
