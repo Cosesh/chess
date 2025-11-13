@@ -1,5 +1,9 @@
 package ui;
 
+import chess.ChessGame;
+import model.AuthData;
+import model.GameData;
+import model.GameName;
 import model.UserData;
 
 import java.util.Arrays;
@@ -10,17 +14,19 @@ public class LoggedInClient {
 
     private State state = State.LOGGED_IN;
     private final ServerFacade server;
+    private AuthData myauth;
 
-    public LoggedInClient(String serverUrl)  {
+    public LoggedInClient(String serverUrl, AuthData auth)  {
         server = new ServerFacade(serverUrl);
+        myauth = auth;
     }
 
     public void run() {
-        System.out.println( " You're loggin big boy. Now what?");
+        System.out.println( " You're logged big boy. Now what?");
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
-        while (!result.equals("quit")) {
+        while (!result.equals("logout")) {
             printPrompt();
             String line = scanner.nextLine();
 
@@ -41,15 +47,23 @@ public class LoggedInClient {
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-                case "login" -> login(params);
-                case "register" -> register(params);
-                case "quit" -> quit();
+                case "logout" -> logout();
+                case "create" -> create(params);
                 default -> help();
             };
         } catch (Exception ex) {
             return ex.getMessage();
         }
     }
+
+    public String create(String... params) throws ResponseException {
+        GameName name = new GameName(params[0]);
+        server.create(name, myauth);
+        return "That mamma jamma was low key created my guy";
+
+    }
+
+
 
 
     public String help() {
@@ -63,27 +77,12 @@ public class LoggedInClient {
                 - kill bin laden
                 """;
     }
-    public String quit() {
-        return "quit";
+    public String logout() {
+        state = State.LOGGED_OUT;
+        return "logout";
     }
 
-    public String login (String... params) {
 
-        state = State.LOGGED_IN;
-        var name = params[1];
-        var pass = params[2];
-        return "you logged in ";
-    }
-
-    public String register (String... params) throws ResponseException {
-        state = State.LOGGED_IN;
-        var name = params[0];
-        var pass = params[1];
-        var email = params[2];
-        UserData user = new UserData(name, pass, email);
-        server.register(user);
-        return "you registered a new user";
-    }
 
     private void printPrompt() {
         System.out.print("\n" + state  + " >>> " );

@@ -20,31 +20,40 @@ public class ServerFacade {
     }
 
 
-    /*public UserData login(String username, String password) throws ResponseException {
-        UserData user = new UserData(username, password);
-        var request = buildRequest("POST", "/session", user);
+    public AuthData login(UserData user) throws ResponseException {
+        var request = buildRequest("POST", "/session", user, null);
         var response = sendRequest(request);
-        return handleResponse(response, UserData.class);
+        return handleResponse(response, AuthData.class);
 
 
-    } */
+    }
 
     public AuthData register(UserData user) throws ResponseException {
-        var request = buildRequest("POST", "/user", user);
+        var request = buildRequest("POST", "/user", user, null);
         var response = sendRequest(request);
         return handleResponse(response, AuthData.class);
 
     }
 
-    private HttpRequest buildRequest(String method, String path, Object body) {
+    public GameData create(GameName name, AuthData auth) throws ResponseException {
+        var request = buildRequest("POST", "/game", name, auth);
+        var response = sendRequest(request);
+        return handleResponse(response, GameData.class);
+    }
+
+    private HttpRequest buildRequest(String method, String path, Object body, AuthData header) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
                 .method(method, makeRequestBody(body));
         if (body != null) {
             request.setHeader("Content-Type", "application/json");
+        } if (header != null) {
+            request.header("authorization", header.authToken());
         }
         return request.build();
     }
+
+
 
 
 

@@ -17,7 +17,7 @@ public class LoggedOutClient {
     }
 
     public void run() {
-        System.out.println( " Welcome to Colton's Chess Lobby. Press enter for options");
+        System.out.println( " Welcome to Colton's Chess Lobby. Type help for options");
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -65,23 +65,25 @@ public class LoggedOutClient {
         return "quit";
     }
 
-    public String login (String... params) {
-
-
-        var name = params[1];
-        var pass = params[2];
+    public String login (String... params) throws ResponseException {
+        var name = params[0];
+        var pass = params[1];
+        UserData user = new UserData(name, pass, null);
+        myauth = server.login(user);
+        var logged = new LoggedInClient(server.getURL(), myauth);
+        logged.run();
 
         return "that was so fun";
     }
 
     public String register (String... params) throws ResponseException {
-        state = State.LOGGED_IN;
+
         var name = params[0];
         var pass = params[1];
         var email = params[2];
         UserData user = new UserData(name, pass, email);
-        server.register(user);
-        var logged = new LoggedInClient(server.getURL());
+        myauth = server.register(user);
+        var logged = new LoggedInClient(server.getURL(), myauth);
         logged.run();
         return "you registered a new user";
     }
