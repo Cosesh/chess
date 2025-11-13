@@ -38,6 +38,7 @@ public class ChessClient {
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "login" -> login(params);
+                case "quit" -> quit();
                 default -> help();
             };
         } catch (Exception ex) {
@@ -53,6 +54,9 @@ public class ChessClient {
                 - quit
                 - help
                 """;
+    }
+    public String quit() {
+        return "quit";
     }
 
     public String login (String... params) {
