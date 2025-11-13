@@ -66,11 +66,11 @@ public class ChessClient {
 
         state = State.LOGGED_IN;
 
-        return "you logged in";
+        return "you logged in ";
     }
 
     private void printPrompt() {
-        System.out.print(state  + " >>> " );
+        System.out.print("\n" + state  + " >>> " );
     }
 
 }
