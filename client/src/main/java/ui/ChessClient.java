@@ -7,8 +7,11 @@ import static ui.EscapeSequences.*;
 public class ChessClient {
 
 
-    public ChessClient(String serverUrl)  {
+    private State state = State.LOGGED_OUT;
+    private final ServerFacade server;
 
+    public ChessClient(String serverUrl)  {
+        server = new ServerFacade(serverUrl);
     }
 
     public void run() {
@@ -49,8 +52,8 @@ public class ChessClient {
 
     public String help() {
         return """
-                - login
-                - register
+                - login <USERNAME> <PASSWORD>
+                - register <USERNAME> <PASSWORD> <EMAIL>
                 - quit
                 - help
                 """;
@@ -61,11 +64,13 @@ public class ChessClient {
 
     public String login (String... params) {
 
-        return "you signed in";
+        state = State.LOGGED_IN;
+
+        return "you logged in";
     }
 
     private void printPrompt() {
-        System.out.print("\n"  + ">>> " );
+        System.out.print(state  + " >>> " );
     }
 
 }
