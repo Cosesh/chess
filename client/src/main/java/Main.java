@@ -1,4 +1,4 @@
-import ui.LoggedInClient;
+import ui.LoggedOutClient;
 
 public class Main {
     public static void main(String[] args) {
@@ -8,7 +8,7 @@ public class Main {
         }
 
         try {
-            new LoggedInClient(serverUrl).run();
+            new LoggedOutClient(serverUrl).run();
 
         } catch (Throwable ex) {
             System.out.printf("Unable to start server: %s%n", ex.getMessage());

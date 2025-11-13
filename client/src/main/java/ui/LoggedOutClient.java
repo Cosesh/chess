@@ -1,22 +1,21 @@
 package ui;
-
 import model.UserData;
 
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class LoggedInClient {
+public class LoggedOutClient {
 
 
-    private State state = State.LOGGED_OUT;
+    private State state = State.LOGGED_IN;
     private final ServerFacade server;
 
-    public LoggedInClient(String serverUrl)  {
+    public LoggedOutClient(String serverUrl)  {
         server = new ServerFacade(serverUrl);
     }
 
     public void run() {
-        System.out.println( " Welcome to Colton's Chess Lobby. Press enter for options");
+        System.out.println( " You're logged in big boy. What now?");
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -85,4 +84,5 @@ public class LoggedInClient {
     private void printPrompt() {
         System.out.print("\n" + state  + " >>> " );
     }
+
 }
