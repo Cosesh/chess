@@ -1,16 +1,16 @@
 package ui;
+import model.UserData;
+
 import java.util.Arrays;
 import java.util.Scanner;
 
-import static ui.EscapeSequences.*;
-
-public class ChessClient {
+public class LoggedInClient {
 
 
     private State state = State.LOGGED_OUT;
     private final ServerFacade server;
 
-    public ChessClient(String serverUrl)  {
+    public LoggedInClient(String serverUrl)  {
         server = new ServerFacade(serverUrl);
     }
 
@@ -41,6 +41,7 @@ public class ChessClient {
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "login" -> login(params);
+                case "register" -> register(params);
                 case "quit" -> quit();
                 default -> help();
             };
@@ -65,8 +66,19 @@ public class ChessClient {
     public String login (String... params) {
 
         state = State.LOGGED_IN;
-
+        var name = params[1];
+        var pass = params[2];
         return "you logged in ";
+    }
+
+    public String register (String... params) throws ResponseException {
+        state = State.LOGGED_IN;
+        var name = params[0];
+        var pass = params[1];
+        var email = params[2];
+        UserData user = new UserData(name, pass, email);
+        server.register(user);
+        return "you registered a new user";
     }
 
     private void printPrompt() {

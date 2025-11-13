@@ -1,5 +1,4 @@
-import chess.*;
-import ui.ChessClient;
+import ui.LoggedInClient;
 
 public class Main {
     public static void main(String[] args) {
@@ -9,7 +8,7 @@ public class Main {
         }
 
         try {
-            new ChessClient(serverUrl).run();
+            new LoggedInClient(serverUrl).run();
 
         } catch (Throwable ex) {
             System.out.printf("Unable to start server: %s%n", ex.getMessage());
