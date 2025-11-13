@@ -1,11 +1,10 @@
 package ui;
 
+import chess.ChessBoard;
 import chess.ChessGame;
-import model.AuthData;
-import model.GameData;
-import model.GameName;
-import model.UserData;
+import model.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -15,6 +14,7 @@ public class LoggedInClient {
     private State state = State.LOGGED_IN;
     private final ServerFacade server;
     private AuthData myauth;
+    private ArrayList<GameInfo> theGameList;
 
     public LoggedInClient(String serverUrl, AuthData auth)  {
         server = new ServerFacade(serverUrl);
@@ -22,7 +22,7 @@ public class LoggedInClient {
     }
 
     public void run() {
-        System.out.println( " You're logged big boy. Now what?");
+        System.out.println( " You're logged in big boy. type help");
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -49,6 +49,8 @@ public class LoggedInClient {
             return switch (cmd) {
                 case "logout" -> logout();
                 case "create" -> create(params);
+                case "join" -> joinGame(params);
+                case "list" -> listGames();
                 default -> help();
             };
         } catch (Exception ex) {
@@ -63,6 +65,29 @@ public class LoggedInClient {
 
     }
 
+    public String listGames() throws ResponseException {
+
+        theGameList = server.listGames(myauth).games();
+
+        String games = "";
+        for(int i = 0; i < theGameList.size(); i++ ) {
+            var spot = theGameList.get(i);
+            games += "Game " + i + ": " + spot.gameName() + " : white: " + spot.whiteUsername() +
+                    ", black: " + spot.blackUsername() + "\n";
+        }
+        return games;
+    }
+
+    public String joinGame(String... params) throws ResponseException {
+        var color = params[0].toUpperCase();
+        var chosenID = Integer.parseInt(params[1]);
+        var iD = theGameList.get(chosenID).gameID();
+        JoinGamer joiner = new JoinGamer(color, iD);
+        server.joinGame(joiner, myauth);
+        return "game board";
+    }
+
+
 
 
 
@@ -70,9 +95,9 @@ public class LoggedInClient {
         return """
                 - help
                 - logout
-                - create game
-                - list games
-                - play game
+                - create <game name>
+                - list (must list before joining)
+                - join <player color> <game id from list>
                 - observe game
                 - kill bin laden
                 """;

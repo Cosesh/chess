@@ -41,6 +41,18 @@ public class ServerFacade {
         return handleResponse(response, GameData.class);
     }
 
+    public GameData joinGame (JoinGamer joiner, AuthData auth) throws ResponseException {
+        var request = buildRequest("PUT", "/game", joiner, auth);
+        var response = sendRequest(request);
+        return handleResponse(response, GameData.class);
+    }
+
+
+    public GameList listGames (AuthData auth) throws ResponseException {
+        var request = buildRequest("GET", "/game", null, auth);
+        var response = sendRequest(request);
+        return handleResponse(response, GameList.class);
+    }
     private HttpRequest buildRequest(String method, String path, Object body, AuthData header) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
