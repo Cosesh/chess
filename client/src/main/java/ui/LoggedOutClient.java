@@ -1,4 +1,5 @@
 package ui;
+import model.AuthData;
 import model.UserData;
 
 import java.util.Arrays;
@@ -7,15 +8,16 @@ import java.util.Scanner;
 public class LoggedOutClient {
 
 
-    private State state = State.LOGGED_IN;
+    private State state = State.LOGGED_OUT;
     private final ServerFacade server;
+    private AuthData myauth;
 
     public LoggedOutClient(String serverUrl)  {
         server = new ServerFacade(serverUrl);
     }
 
     public void run() {
-        System.out.println( " You're logged in big boy. What now?");
+        System.out.println( " Welcome to Colton's Chess Lobby. Press enter for options");
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -65,10 +67,11 @@ public class LoggedOutClient {
 
     public String login (String... params) {
 
-        state = State.LOGGED_IN;
+
         var name = params[1];
         var pass = params[2];
-        return "you logged in ";
+
+        return "that was so fun";
     }
 
     public String register (String... params) throws ResponseException {
@@ -78,6 +81,8 @@ public class LoggedOutClient {
         var email = params[2];
         UserData user = new UserData(name, pass, email);
         server.register(user);
+        var logged = new LoggedInClient(server.getURL());
+        logged.run();
         return "you registered a new user";
     }
 

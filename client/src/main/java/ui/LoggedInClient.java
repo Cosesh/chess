@@ -8,7 +8,7 @@ import java.util.Scanner;
 public class LoggedInClient {
 
 
-    private State state = State.LOGGED_OUT;
+    private State state = State.LOGGED_IN;
     private final ServerFacade server;
 
     public LoggedInClient(String serverUrl)  {
@@ -16,7 +16,7 @@ public class LoggedInClient {
     }
 
     public void run() {
-        System.out.println( " Welcome to Colton's Chess Lobby. Press enter for options");
+        System.out.println( " You're loggin big boy. Now what?");
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -54,10 +54,13 @@ public class LoggedInClient {
 
     public String help() {
         return """
-                - login <USERNAME> <PASSWORD>
-                - register <USERNAME> <PASSWORD> <EMAIL>
-                - quit
                 - help
+                - logout
+                - create game
+                - list games
+                - play game
+                - observe game
+                - kill bin laden
                 """;
     }
     public String quit() {
