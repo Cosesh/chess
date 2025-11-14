@@ -97,7 +97,7 @@ public class LoggedInClient {
             String[][] reverse = new String[8][8];
             for (int i = 0; i < 8; i++) {
                 for (int j = 0; j < 8; j++) {
-                    reverse[i][j] = toPrint[7-i][7-j];
+                    reverse[i][j] = toPrint[7-i][j];
                 }
             } printBoardBlack(reverse);
 
@@ -111,14 +111,15 @@ public class LoggedInClient {
         String[][] boardString = new String[8][8];
         boolean isWhite = true;
         for (int i = 1; i <= 8 ; i++) {
-            for (int j = 1; j <= 8; j++) {
+            for (int j = 8; j >= 1; j--) {
                 ChessPosition pos = new ChessPosition(i,j);
                 var piece = board.getPiece(pos);
+                int display = 8-i;
                 if(piece == null){
                     if(isWhite){
-                        boardString[i-1][j-1] = SET_BG_COLOR_WHITE + "   " + RESET_BG_COLOR;
+                        boardString[display][j-1] = SET_BG_COLOR_WHITE + "   " + RESET_BG_COLOR;
                     } else {
-                        boardString[i-1][j-1] = SET_BG_COLOR_BLACK + "   " + RESET_BG_COLOR;
+                        boardString[display][j-1] = SET_BG_COLOR_BLACK + "   " + RESET_BG_COLOR;
                     }
 
                 }else {
@@ -130,7 +131,7 @@ public class LoggedInClient {
                     } else{
                         letter = type.name().substring(0,1);
                     }
-                    setColors(isWhite, color, boardString, i, j, letter);
+                    setColors(isWhite, color, boardString, display + 1, j, letter);
                 }
                 isWhite = !isWhite;
             }
@@ -141,21 +142,35 @@ public class LoggedInClient {
 
     private static void setColors(boolean isWhite, ChessGame.TeamColor color, String[][] boardString, int i, int j, String letter) {
         if(isWhite){
-            if(color.equals(ChessGame.TeamColor.BLACK)){
-                boardString[i - 1][j -1] = SET_BG_COLOR_WHITE + " " +  SET_TEXT_COLOR_BLUE + letter + " " + RESET_BG_COLOR;
+            if(color.equals(ChessGame.TeamColor.WHITE)){
+                boardString[i - 1][j -1] = SET_BG_COLOR_WHITE + " " +  SET_TEXT_COLOR_RED + letter + " " + RESET_BG_COLOR;
             } else {
-                boardString[i -1][j -1] = SET_BG_COLOR_WHITE + " " + SET_TEXT_COLOR_RED + letter + " "  + RESET_BG_COLOR;
+                boardString[i -1][j -1] = SET_BG_COLOR_WHITE + " " + SET_TEXT_COLOR_BLUE + letter + " "  + RESET_BG_COLOR;
             }
         } else {
-            if(color.equals(ChessGame.TeamColor.BLACK)){
-                boardString[i -1][j -1] = SET_BG_COLOR_BLACK  + " " + SET_TEXT_COLOR_BLUE + letter + " " + RESET_BG_COLOR;
+            if(color.equals(ChessGame.TeamColor.WHITE)){
+                boardString[i -1][j -1] = SET_BG_COLOR_BLACK  + " " + SET_TEXT_COLOR_RED + letter + " " + RESET_BG_COLOR;
             } else {
-                boardString[i -1][j -1] = SET_BG_COLOR_BLACK + " " + SET_TEXT_COLOR_RED + letter + " " +  RESET_BG_COLOR;
+                boardString[i -1][j -1] = SET_BG_COLOR_BLACK + " " + SET_TEXT_COLOR_BLUE + letter + " " +  RESET_BG_COLOR;
             }
         }
     }
 
+    /* "    h  g  f  e  d  c  b  a    "    "    a  b  c  d  e  f  g  h    "   */
+
     private void printBoardWhite(String[][] toPrint) {
+        System.out.println( SET_TEXT_BOLD + SET_TEXT_COLOR_WHITE +"    a  b  c  d  e  f  g  h    " + RESET_TEXT_COLOR);
+        for (int i = 0; i < toPrint.length; i++) {
+            System.out.print(SET_TEXT_BOLD + SET_TEXT_COLOR_WHITE +" " + (8-i) + " " + RESET_TEXT_COLOR);
+            for (int j = 0; j <toPrint[i].length ; j++) {
+                System.out.print(toPrint[i][j]);
+            }
+            System.out.print(SET_TEXT_BOLD + SET_TEXT_COLOR_WHITE +" " + (8-i) + " " + RESET_TEXT_COLOR);
+            System.out.println();
+        }
+        System.out.println(SET_TEXT_BOLD + SET_TEXT_COLOR_WHITE +"    a  b  c  d  e  f  g  h    " + RESET_TEXT_COLOR);
+    }
+    private void printBoardBlack(String[][] toPrint) {
         System.out.println( SET_TEXT_BOLD + SET_TEXT_COLOR_WHITE +"    h  g  f  e  d  c  b  a    " + RESET_TEXT_COLOR);
         for (int i = 0; i < toPrint.length; i++) {
             System.out.print(SET_TEXT_BOLD + SET_TEXT_COLOR_WHITE +" " + (i+1) + " " + RESET_TEXT_COLOR);
@@ -166,18 +181,6 @@ public class LoggedInClient {
             System.out.println();
         }
         System.out.println(SET_TEXT_BOLD + SET_TEXT_COLOR_WHITE +"    h  g  f  e  d  c  b  a    " + RESET_TEXT_COLOR);
-    }
-    private void printBoardBlack(String[][] toPrint) {
-        System.out.println( SET_TEXT_BOLD + SET_TEXT_COLOR_WHITE +"    a  b  c  d  e  f  g  h    " + RESET_TEXT_COLOR);
-        for (int i = 8 ; i > 0; i--) {
-            System.out.print(SET_TEXT_BOLD + SET_TEXT_COLOR_WHITE +" " + (i) + " " + RESET_TEXT_COLOR);
-            for (int j = 8; j > 0 ; j--) {
-                System.out.print(toPrint[i-1][j-1]);
-            }
-            System.out.print(SET_TEXT_BOLD + SET_TEXT_COLOR_WHITE +" " + (i) + " " + RESET_TEXT_COLOR);
-            System.out.println();
-        }
-        System.out.println(SET_TEXT_BOLD + SET_TEXT_COLOR_WHITE +"    a  b  c  d  e  f  g  h    " + RESET_TEXT_COLOR);
     }
 
 
