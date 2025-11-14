@@ -20,6 +20,8 @@ public class ServerFacade {
     }
 
 
+
+
     public AuthData login(UserData user) throws ResponseException {
         var request = buildRequest("POST", "/session", user, null);
         var response = sendRequest(request);

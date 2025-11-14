@@ -82,7 +82,7 @@ public class LoggedInClient {
     }
 
     public String joinGame(String... params) throws ResponseException {
-        var color = params[0].toUpperCase();
+        String color = params[0].toUpperCase();
         var chosenID = Integer.parseInt(params[1]);
         var iD = theGameList.get(chosenID).gameID();
         JoinGamer joiner = new JoinGamer(color, iD);
@@ -91,7 +91,18 @@ public class LoggedInClient {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
         var toPrint = boardString(board);
-        printBoardWhite(toPrint);
+        if(color.equals("WHITE")) {
+            printBoardWhite(toPrint);
+        } else {
+            String[][] reverse = new String[8][8];
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    reverse[i][j] = toPrint[7-i][7-j];
+                }
+            } printBoardBlack(reverse);
+
+        }
+
         return "";
     }
 
@@ -131,7 +142,7 @@ public class LoggedInClient {
     private static void setColors(boolean isWhite, ChessGame.TeamColor color, String[][] boardString, int i, int j, String letter) {
         if(isWhite){
             if(color.equals(ChessGame.TeamColor.BLACK)){
-                boardString[i -1][j -1] = SET_BG_COLOR_WHITE + " " +  SET_TEXT_COLOR_BLUE + letter + " " + RESET_BG_COLOR;
+                boardString[i - 1][j -1] = SET_BG_COLOR_WHITE + " " +  SET_TEXT_COLOR_BLUE + letter + " " + RESET_BG_COLOR;
             } else {
                 boardString[i -1][j -1] = SET_BG_COLOR_WHITE + " " + SET_TEXT_COLOR_RED + letter + " "  + RESET_BG_COLOR;
             }
@@ -155,6 +166,18 @@ public class LoggedInClient {
             System.out.println();
         }
         System.out.println(SET_TEXT_BOLD + SET_TEXT_COLOR_WHITE +"    h  g  f  e  d  c  b  a    " + RESET_TEXT_COLOR);
+    }
+    private void printBoardBlack(String[][] toPrint) {
+        System.out.println( SET_TEXT_BOLD + SET_TEXT_COLOR_WHITE +"    a  b  c  d  e  f  g  h    " + RESET_TEXT_COLOR);
+        for (int i = 8 ; i > 0; i--) {
+            System.out.print(SET_TEXT_BOLD + SET_TEXT_COLOR_WHITE +" " + (i) + " " + RESET_TEXT_COLOR);
+            for (int j = 8; j > 0 ; j--) {
+                System.out.print(toPrint[i-1][j-1]);
+            }
+            System.out.print(SET_TEXT_BOLD + SET_TEXT_COLOR_WHITE +" " + (i) + " " + RESET_TEXT_COLOR);
+            System.out.println();
+        }
+        System.out.println(SET_TEXT_BOLD + SET_TEXT_COLOR_WHITE +"    a  b  c  d  e  f  g  h    " + RESET_TEXT_COLOR);
     }
 
 
