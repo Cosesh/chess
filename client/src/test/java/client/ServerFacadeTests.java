@@ -126,6 +126,11 @@ public class ServerFacadeTests {
 
     }
 
+    @Test
+    public void posClear() {
+        assertDoesNotThrow(() ->{facade.clear();});
+    }
+
 
 
 
