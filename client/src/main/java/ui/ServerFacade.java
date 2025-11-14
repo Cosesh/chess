@@ -20,6 +20,7 @@ public class ServerFacade {
     }
 
 
+
     public AuthData login(UserData user) throws ResponseException {
         var request = buildRequest("POST", "/session", user, null);
         var response = sendRequest(request);
@@ -61,6 +62,12 @@ public class ServerFacade {
         var request = buildRequest("GET", "/game", null, auth);
         var response = sendRequest(request);
         return handleResponse(response, GameList.class);
+    }
+
+    public void clear() throws ResponseException {
+        var request = buildRequest("DELETE", "/db", null, null);
+        var response = sendRequest(request);
+        handleResponse(response, GameList.class);
     }
     private HttpRequest buildRequest(String method, String path, Object body, AuthData header) {
         var request = HttpRequest.newBuilder()

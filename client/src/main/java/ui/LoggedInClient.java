@@ -26,22 +26,25 @@ public class LoggedInClient {
 
     public void run() {
         System.out.println( " You're logged in big boy. type help for options");
-
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("logout")) {
-            printPrompt();
-            String line = scanner.nextLine();
-
-            try {
-                result = eval(line);
-                System.out.print(result);
-            } catch (Throwable e) {
-                var msg = e.toString();
-                System.out.print(msg);
-            }
+            result = getResult(scanner, result);
         }
         System.out.println();
+    }
+
+    private String getResult(Scanner scanner, String result) {
+        printPrompt();
+        String line = scanner.nextLine();
+        try {
+            result = eval(line);
+            System.out.print(result);
+        } catch (Throwable e) {
+            var msg = e.toString();
+            System.out.print(msg);
+        }
+        return result;
     }
 
     public String eval(String input) {
