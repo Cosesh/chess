@@ -16,7 +16,7 @@ public class LoggedInClient {
 
     private State state = State.LOGGED_IN;
     private final ServerFacade server;
-    private AuthData myauth;
+    private final AuthData myauth;
     private ArrayList<GameInfo> theGameList;
 
     public LoggedInClient(String serverUrl, AuthData auth)  {
@@ -25,7 +25,7 @@ public class LoggedInClient {
     }
 
     public void run() {
-        System.out.println( " You're logged in big boy. type help");
+        System.out.println( " You're logged in big boy. type help for options");
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -54,6 +54,7 @@ public class LoggedInClient {
                 case "create" -> create(params);
                 case "join" -> joinGame(params);
                 case "list" -> listGames();
+                case "observe" -> observeGame(params);
                 default -> help();
             };
         } catch (Exception ex) {
@@ -126,6 +127,29 @@ public class LoggedInClient {
 
         }
 
+        return "";
+    }
+
+    public String observeGame(String... params) throws ResponseException {
+        if (params.length !=1){
+            throw new ResponseException(ResponseException.Code.ClientError,
+                    "join requires 1 parameter " +
+                            "\nobserve <desried color> <game iD>");
+        }
+        String iDString = params[0];
+        if(!iDString.matches("\\d+")){
+            System.out.println("game id must be a positive integer");
+            return "";
+        }
+        var chosenID = Integer.parseInt(iDString) - 1;
+        if(chosenID >= theGameList.size() || chosenID < 0) {
+            System.out.println("that game id does not exist");
+            return "";
+        }
+        ChessBoard board = new ChessBoard();
+        board.resetBoard();
+        var toPrint = boardString(board);
+        printBoardWhite(toPrint);
         return "";
     }
 
@@ -214,7 +238,7 @@ public class LoggedInClient {
                 - create <game name>
                 - list
                 - join <desired color> <game id>
-                - observe game <game id>
+                - observe <game id>
                 - kill bin laden
                 """;
     }
