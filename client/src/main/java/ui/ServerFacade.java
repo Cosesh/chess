@@ -35,10 +35,9 @@ public class ServerFacade {
 
     }
 
-    public GameData create(GameName name, AuthData auth) throws ResponseException {
+    public void create(GameName name, AuthData auth) throws ResponseException {
         var request = buildRequest("POST", "/game", name, auth);
-        var response = sendRequest(request);
-        return handleResponse(response, GameData.class);
+        sendRequest(request);
     }
 
     public GameData joinGame (JoinGamer joiner, AuthData auth) throws ResponseException {

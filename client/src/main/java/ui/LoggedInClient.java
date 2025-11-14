@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPosition;
 import model.*;
 
 import java.util.ArrayList;
@@ -83,12 +84,41 @@ public class LoggedInClient {
         var chosenID = Integer.parseInt(params[1]);
         var iD = theGameList.get(chosenID).gameID();
         JoinGamer joiner = new JoinGamer(color, iD);
+
         server.joinGame(joiner, myauth);
-        return "game board";
+        ChessBoard board = new ChessBoard();
+        board.resetBoard();
+        var toPrint = boardString(board);
+        printBoard(toPrint);
+        return "";
     }
 
 
+    private String[][] boardString(ChessBoard board) {
+        String[][] boardString = new String[8][8];
+        for (int i = 1; i <= 8 ; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition pos = new ChessPosition(i,j);
+                var piece = board.getPiece(pos);
+                if(piece == null){
+                    boardString[i-1][j-1] = "!";
+                }else {
+                    boardString[i-1][j-1] = piece.getPieceType().name().substring(0,1);
+                }
 
+            }
+        }
+        return boardString;
+    }
+
+    private void printBoard(String[][] toPrint) {
+        for (int i = 0; i < toPrint.length; i++) {
+            for (int j = 0; j <toPrint[i].length ; j++) {
+                System.out.print(toPrint[i][j] + "  ");
+            }
+            System.out.println();
+        }
+    }
 
 
     public String help() {
