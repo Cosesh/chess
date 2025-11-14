@@ -20,12 +20,14 @@ public class ServerFacade {
     }
 
 
-
-
     public AuthData login(UserData user) throws ResponseException {
         var request = buildRequest("POST", "/session", user, null);
         var response = sendRequest(request);
-        return handleResponse(response, AuthData.class);
+        try {
+            return handleResponse(response, AuthData.class);
+        } catch (Exception e) {
+            throw new ResponseException(ResponseException.Code.ServerError, "user does not exist");
+        }
 
 
     }
@@ -34,7 +36,6 @@ public class ServerFacade {
         var request = buildRequest("POST", "/user", user, null);
         var response = sendRequest(request);
         return handleResponse(response, AuthData.class);
-
     }
 
     public void create(GameName name, AuthData auth) throws ResponseException {
@@ -42,10 +43,17 @@ public class ServerFacade {
         sendRequest(request);
     }
 
-    public GameData joinGame (JoinGamer joiner, AuthData auth) throws ResponseException {
+    public void joinGame (JoinGamer joiner, AuthData auth) throws ResponseException {
         var request = buildRequest("PUT", "/game", joiner, auth);
         var response = sendRequest(request);
-        return handleResponse(response, GameData.class);
+        try {
+            handleResponse(response, GameData.class);
+        } catch (Exception e) {
+            throw new ResponseException(ResponseException.Code.ServerError, "sorry! can't join that game!\n" +
+                    "make sure that  that there are no\n " +
+                    "players assigned to your desired color!");
+        }
+
     }
 
 

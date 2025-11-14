@@ -62,8 +62,14 @@ public class LoggedInClient {
     }
 
     public String create(String... params) throws ResponseException {
+        if (params.length !=1){
+            throw new ResponseException(ResponseException.Code.ClientError,
+                    "create requires 1 parameter " +
+                            "\n create <gameName>");
+        }
         GameName name = new GameName(params[0]);
         server.create(name, myauth);
+        theGameList = server.listGames(myauth).games();
         return "That mamma jamma was low key created my guy";
 
     }
@@ -71,10 +77,9 @@ public class LoggedInClient {
     public String listGames() throws ResponseException {
 
         theGameList = server.listGames(myauth).games();
-
         String games = "";
-        for(int i = 0; i < theGameList.size(); i++ ) {
-            var spot = theGameList.get(i);
+        for(int i = 1; i < theGameList.size() + 1; i++ ) {
+            var spot = theGameList.get(i-1);
             games += "Game " + i + ": " + spot.gameName() + " : white: " + spot.whiteUsername() +
                     ", black: " + spot.blackUsername() + "\n";
         }
@@ -82,9 +87,27 @@ public class LoggedInClient {
     }
 
     public String joinGame(String... params) throws ResponseException {
+
+        if (params.length !=2){
+            throw new ResponseException(ResponseException.Code.ClientError,
+                    "join requires 2 parameters " +
+                            "\n join <desried color> <game iD>");
+        }
+
         String color = params[0].toUpperCase();
-        var chosenID = Integer.parseInt(params[1]);
+        String iDString = params[1];
+        if(!iDString.matches("\\d+")){
+            System.out.println("game id must be a positive integer");
+            return "";
+        }
+        var chosenID = Integer.parseInt(iDString) - 1;
+        if(chosenID >= theGameList.size() || chosenID < 0) {
+            System.out.println("that game id does not exist");
+            return "";
+        }
+
         var iD = theGameList.get(chosenID).gameID();
+
         JoinGamer joiner = new JoinGamer(color, iD);
 
         server.joinGame(joiner, myauth);
@@ -189,9 +212,9 @@ public class LoggedInClient {
                 - help
                 - logout
                 - create <game name>
-                - list (must list before joining)
-                - join <player color> <game id from list>
-                - observe game
+                - list
+                - join <desired color> <game id>
+                - observe game <game id>
                 - kill bin laden
                 """;
     }

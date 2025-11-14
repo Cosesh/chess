@@ -66,6 +66,11 @@ public class LoggedOutClient {
     }
 
     public String login (String... params) throws ResponseException {
+        if (params.length !=2){
+            throw new ResponseException(ResponseException.Code.ClientError,
+                    "login requires 2 parameters " +
+                    "\nlogin <username> <password>");
+        }
         var name = params[0];
         var pass = params[1];
         UserData user = new UserData(name, pass, null);
@@ -78,6 +83,11 @@ public class LoggedOutClient {
 
     public String register (String... params) throws ResponseException {
 
+        if (params.length !=3){
+            throw new ResponseException(ResponseException.Code.ClientError,
+                    "register requires 3 parameters " +
+                            "\nregister <username> <password> <email>");
+        }
         var name = params[0];
         var pass = params[1];
         var email = params[2];
