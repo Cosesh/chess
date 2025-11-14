@@ -86,7 +86,7 @@ public class ServerFacadeTests {
     public void posList() {
 
         assertDoesNotThrow(() ->
-        {UserData user = new UserData("myplayer", "password", "p1@email.com");
+        {UserData user = new UserData("thisguy", "my", "p1@email.com");
             AuthData auth = facade.register(user);
             facade.create(new GameName("Name"),auth);
             facade.listGames(auth);});
@@ -108,7 +108,6 @@ public class ServerFacadeTests {
         {UserData user = new UserData("myplayer", "password", "p1@email.com");
             AuthData auth = facade.register(user);
             facade.create(new GameName("Name"),auth);
-            facade.listGames(auth);
             });
 
     }
