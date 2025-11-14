@@ -95,7 +95,7 @@ public class LoggedOutClient {
         myauth = server.register(user);
         var logged = new LoggedInClient(server.getURL(), myauth);
         logged.run();
-        return "you registered a new user";
+        return "";
     }
 
     private void printPrompt() {

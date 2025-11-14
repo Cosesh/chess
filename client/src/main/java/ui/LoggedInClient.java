@@ -82,10 +82,13 @@ public class LoggedInClient {
 
         theGameList = server.listGames(myauth).games();
         String games = "";
+        if(theGameList.isEmpty()){
+            System.out.println("There are no games");
+        }
         for(int i = 1; i < theGameList.size() + 1; i++ ) {
             var spot = theGameList.get(i-1);
-            games += "Game " + i + ": " + spot.gameName() + " : white: " + spot.whiteUsername() +
-                    ", black: " + spot.blackUsername() + "\n";
+            games += "" + i + "| name: " + spot.gameName() + "| white username: " + spot.whiteUsername() +
+                    "| black username: " + spot.blackUsername() + "\n";
         }
         return games;
     }
@@ -136,8 +139,8 @@ public class LoggedInClient {
     public String observeGame(String... params) throws ResponseException {
         if (params.length !=1){
             throw new ResponseException(ResponseException.Code.ClientError,
-                    "join requires 1 parameter " +
-                            "\nobserve <desried color> <game iD>");
+                    "observe requires 1 parameter " +
+                            "\nobserve <game iD>");
         }
         String iDString = params[0];
         if(!iDString.matches("\\d+")){
@@ -242,7 +245,6 @@ public class LoggedInClient {
                 - list
                 - join <desired color> <game id>
                 - observe <game id>
-                - kill bin laden
                 """;
     }
     public String logout() {

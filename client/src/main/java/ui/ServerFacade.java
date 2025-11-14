@@ -35,7 +35,11 @@ public class ServerFacade {
     public AuthData register(UserData user) throws ResponseException {
         var request = buildRequest("POST", "/user", user, null);
         var response = sendRequest(request);
-        return handleResponse(response, AuthData.class);
+        try {
+            return handleResponse(response, AuthData.class);
+        } catch (Exception e) {
+            throw new ResponseException(ResponseException.Code.ServerError, "user already exists");
+        }
     }
 
     public void create(GameName name, AuthData auth) throws ResponseException {
