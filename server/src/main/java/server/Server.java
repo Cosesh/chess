@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.*;
+import io.javalin.websocket.WsConfig;
 import model.UserData;
 import model.*;
 import io.javalin.*;
@@ -11,6 +12,7 @@ import service.AlreadyTakenException;
 import service.BadRequestException;
 import service.UnauthorizedException;
 import service.SessionService;
+import websocket.WebSocketHandler;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -19,6 +21,7 @@ public class Server {
 
     private final Javalin server;
     private final SessionService sessionService;
+    private final WebSocketHandler webHandler;
     private UserDataAccess uDAO;
     private AuthDataAccess aDAO;
     private GameDataAccess gDAO;
@@ -27,10 +30,12 @@ public class Server {
 
 
     public Server() {
+
         try{
            uDAO = new UserSqlDataAccess();
            aDAO = new AuthSqlDataAccess();
            gDAO = new GameSqlDataAccess();
+           webHandler = new WebSocketHandler();
 
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
@@ -48,9 +53,17 @@ public class Server {
         server.post("game", this::createGame);
         server.put("game", this::joinGame);
         server.get("game", this::listGames);
+        server.ws("ws", ws -> {
+            ws.onConnect(webHandler);
+            ws.onMessage(webHandler);
+            ws.onClose(webHandler);
+        });
 
     }
-    
+
+    private void handle(WsConfig wsConfig) {
+    }
+
     private void register(Context ctx) {
         try{
             var serializer = new Gson();
