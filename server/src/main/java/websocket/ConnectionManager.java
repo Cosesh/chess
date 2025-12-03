@@ -8,22 +8,27 @@ import websocket.messages.ServerMessage;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
-    public final ConcurrentHashMap<Integer, Session> connections = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<Integer, ArrayList<Session>> connections = new ConcurrentHashMap<>();
 
     public void add(Session session, int gameID) {
-        connections.put(gameID, session);
+        connections.computeIfAbsent(gameID, k -> new ArrayList<>());
+        connections.get(gameID).add(session);
     }
 
-    public void remove(int gameID) {
-        connections.remove(gameID);
+    public void remove(int gameID, Session session) {
+        connections.get(gameID).remove(session);
     }
 
-    public void broadcast(Session excludeSession, ServerMessage message, String msg) throws IOException {
+    public void broadcast(Session excludeSession, ServerMessage message, int gameID) throws IOException {
         var serializer = new Gson();
-        for (Session c : connections.values()) {
+
+        var game = connections.get(gameID);
+        for(Session c: game){
             if (c.isOpen()) {
                 if (!c.equals(excludeSession)) {
                     c.getRemote().sendString(serializer.toJson(message));
@@ -32,10 +37,9 @@ public class ConnectionManager {
         }
     }
 
-    public void send(Session includedSession, ServerMessage message, String msg) throws IOException {
+    public void send(Session includedSession, ServerMessage message) throws IOException {
         if(includedSession.isOpen()){
             var serializer = new Gson();
-//            includedSession.getRemote().sendString(msg);
             includedSession.getRemote().sendString(serializer.toJson(message));
         }
     }

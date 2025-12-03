@@ -35,7 +35,7 @@ public class Server {
            uDAO = new UserSqlDataAccess();
            aDAO = new AuthSqlDataAccess();
            gDAO = new GameSqlDataAccess();
-           webHandler = new WebSocketHandler();
+           webHandler = new WebSocketHandler(aDAO,gDAO);
 
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
