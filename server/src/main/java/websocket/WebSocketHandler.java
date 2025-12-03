@@ -2,12 +2,14 @@ package websocket;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.*;
 import io.javalin.websocket.*;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 import server.Server;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -49,7 +51,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             var Serializer = new Gson();
             UserGameCommand command = Serializer.fromJson(
                     wsMessageContext.message(), UserGameCommand.class);
-            gameId = command.getGameID();
+
+            if(command.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE){
+                MakeMoveCommand moveCommand = Serializer.fromJson(
+                        wsMessageContext.message(), MakeMoveCommand.class);
+                makeMove(session,moveCommand);
+            }
+
 
             switch (command.getCommandType()) {
                 case CONNECT -> connect(session, command);
@@ -61,6 +69,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
 
     }
+
 
     private void saveSession(int gameId, Session session) {
         connections.add(session, gameId);
@@ -83,6 +92,27 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         ServerMessage servMessOther = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,msg);
         connections.broadcast(session,servMessOther, ident);
         connections.send(session, servMessRoot);
+    }
+
+
+    private void makeMove(Session session, MakeMoveCommand command) throws DataAccessException, InvalidMoveException, IOException {
+        var ident = command.getGameID();
+        var serializer = new Gson();
+        String username = aDAO.getAuth(command.getAuthToken()).username();
+        ChessGame updatedGame = gDAO.getGame(ident).game();
+        var moveToMake = command.getMove();
+        var validMoves = updatedGame.validMoves(moveToMake.getStartPosition());
+        if(validMoves.contains(moveToMake)){
+            updatedGame.makeMove(command.getMove());
+
+            gDAO.updateGameData(serializer.toJson(updatedGame),ident);
+            ServerMessage servMessAll = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,updatedGame);
+            connections.sendToAll(servMessAll,ident);
+            String msg = username + "made this move: " + moveToMake;
+            ServerMessage servMessOther = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,msg);
+            connections.broadcast(session,servMessOther,ident);
+
+        }
 
 
     }

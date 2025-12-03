@@ -54,4 +54,9 @@ public class GameMemoryDataAccess implements GameDataAccess{
         return games.get(iD);
     }
 
+    @Override
+    public void updateGameData(String game, int iD) {
+
+    }
+
 }

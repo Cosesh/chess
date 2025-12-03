@@ -43,4 +43,17 @@ public class ConnectionManager {
             includedSession.getRemote().sendString(serializer.toJson(message));
         }
     }
+
+    public void sendToAll(ServerMessage message, int gameID) throws IOException {
+        var serializer = new Gson();
+
+        var game = connections.get(gameID);
+        for(Session c: game){
+            if (c.isOpen()) {
+                c.getRemote().sendString(serializer.toJson(message));
+            }
+        }
+
+
+    }
 }

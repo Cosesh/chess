@@ -91,6 +91,14 @@ public class GameSqlDataAccess implements GameDataAccess{
 
     }
 
+    public void updateGameData(String game,int iD) throws DataAccessException {
+        if(game == null){
+            throw new DataAccessException("Data");
+        }
+        helper.executeUpdate("UPDATE games SET game = ? WHERE gameID = ? ", game, iD);
+
+    }
+
     @Override
     public GameData getGame(int iD) throws DataAccessException {
         if(iD < 0){throw new DataAccessException("Data");}
