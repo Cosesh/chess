@@ -7,7 +7,9 @@ import dataaccess.*;
 import io.javalin.websocket.*;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
+import server.Server;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
@@ -45,14 +47,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         try {
             var Serializer = new Gson();
-            var database = new AuthSqlDataAccess();
             UserGameCommand command = Serializer.fromJson(
                     wsMessageContext.message(), UserGameCommand.class);
             gameId = command.getGameID();
-            String username = database.getAuth(command.getAuthToken()).username();
 
             switch (command.getCommandType()) {
-                case CONNECT -> connect(session, username, command);
+                case CONNECT -> connect(session, command);
 
             }
         } catch (Exception ex) {
@@ -66,9 +66,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.add(session, gameId);
     }
 
-    private void connect(Session session, String username, UserGameCommand command) throws IOException, DataAccessException {
+    private void connect(Session session, UserGameCommand command) throws IOException, DataAccessException {
         var serializer = new Gson();
         var ident = command.getGameID();
+
+        if(gDAO.getGame(ident) == null || aDAO.getAuth(command.getAuthToken()) == null) {
+            ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"Game ID does not exist");
+            connections.send(session,servMessError);
+            return;
+        }
+        String username = aDAO.getAuth(command.getAuthToken()).username();
         connections.add(session, ident);
         var game = gDAO.getGame(ident).game();
         ServerMessage servMessRoot = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,game);
