@@ -5,6 +5,7 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPosition;
 import model.*;
+import ui.websocket.GameClient;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,7 +94,7 @@ public class LoggedInClient {
         return games;
     }
 
-    public String joinGame(String... params) throws ResponseException {
+    public String joinGame(String... params) throws Exception {
 
         if (params.length !=2){
             throw new ResponseException(ResponseException.Code.ClientError,
@@ -132,6 +133,8 @@ public class LoggedInClient {
             } printBoardBlack(reverse);
 
         }
+        var gamed = new GameClient(server.getURL(), myauth);
+        gamed.run();
 
         return "";
     }
