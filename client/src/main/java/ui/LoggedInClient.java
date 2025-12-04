@@ -133,7 +133,7 @@ public class LoggedInClient {
             } printBoardBlack(reverse);
 
         }
-        var gamed = new GameClient(server.getURL(), myauth);
+        var gamed = new GameClient(server.getURL(), myauth, iD);
         gamed.run();
 
         return "";

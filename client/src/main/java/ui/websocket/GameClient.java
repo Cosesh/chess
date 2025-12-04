@@ -2,6 +2,7 @@ package ui.websocket;
 
 import model.AuthData;
 import model.GameInfo;
+import ui.ResponseException;
 import ui.ServerFacade;
 import ui.State;
 import websocket.messages.ServerMessage;
@@ -12,23 +13,26 @@ import java.util.Scanner;
 
 
 public class GameClient implements NotificationHandler{
-    private State state = State.LOGGED_IN;
+    private State state = State.IN_GAME;
     private final ServerFacade server;
     private final AuthData myauth;
+    private final int iD;
     private ArrayList<GameInfo> theGameList;
     private final WebSocketFacade ws;
 
-    public GameClient(String serverUrl, AuthData auth) throws Exception {
+    public GameClient(String serverUrl, AuthData auth, int iD) throws Exception {
         server = new ServerFacade(serverUrl);
         myauth = auth;
+        this.iD = iD;
         ws = new WebSocketFacade(serverUrl,this);
     }
 
-    public void run() {
+    public void run() throws ResponseException {
+        ws.connect(myauth.authToken(), iD );
         System.out.println( " You're in the game");
         Scanner scanner = new Scanner(System.in);
         var result = "";
-        while (!result.equals("logout")) {
+        while (!result.equals("you left the game")) {
             result = getResult(scanner, result);
         }
         System.out.println();
@@ -53,7 +57,7 @@ public class GameClient implements NotificationHandler{
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-                case "leave" -> logout();
+                case "leave" -> leave();
                 case "redraw" -> redraw();
                 case "makeMove" -> makeMove(params);
                 case "resign"-> resign();
@@ -69,8 +73,9 @@ public class GameClient implements NotificationHandler{
         return "highlighted board";
     }
 
-    private String resign() {
-        return "resign big boy";
+    private String resign() throws ResponseException {
+        ws.resign(myauth.authToken(), iD);
+        return "you resigned";
     }
 
     private String makeMove(String[] params) {
@@ -109,9 +114,10 @@ public class GameClient implements NotificationHandler{
                 - highlight
                 """;
     }
-    public String logout() {
-        state = State.LOGGED_OUT;
-        return "logout";
+    public String leave() throws ResponseException {
+        ws.leave(myauth.authToken(),iD);
+        state = State.LOGGED_IN;
+        return "you left the game";
     }
 
 
