@@ -91,6 +91,15 @@ public class GameSqlDataAccess implements GameDataAccess{
 
     }
 
+    public void removeUser(int iD, String color) throws DataAccessException {
+        if(color.equals("WHITE")){
+            helper.executeUpdate("UPDATE games SET whiteUsername = ? WHERE gameID = ? ", null, iD);
+
+        } else if(color.equals("BLACK")){
+            helper.executeUpdate("UPDATE games SET blackUsername = ? WHERE gameID = ? ", null, iD);
+        }
+    }
+
     public void updateGameData(String game,int iD) throws DataAccessException {
         if(game == null){
             throw new DataAccessException("Data");

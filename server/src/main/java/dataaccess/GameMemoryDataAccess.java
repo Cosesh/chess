@@ -59,4 +59,9 @@ public class GameMemoryDataAccess implements GameDataAccess{
 
     }
 
+    @Override
+    public void removeUser(int iD, String Color) throws DataAccessException {
+
+    }
+
 }
