@@ -6,6 +6,7 @@ import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.*;
 import io.javalin.websocket.*;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 import server.Server;
@@ -46,6 +47,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     public void handleMessage(WsMessageContext wsMessageContext)  {
         int gameId = -1;
         Session session = wsMessageContext.session;
+
 
         try {
             var Serializer = new Gson();
@@ -105,7 +107,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             return;
         }
         String username = aDAO.getAuth(command.getAuthToken()).username();
-        ChessGame updatedGame = gDAO.getGame(ident).game();
+        GameData updatedGameData = gDAO.getGame(ident);
+        ChessGame updatedGame = updatedGameData.game();
+        String whiteUser = updatedGameData.whiteUsername();
+        String blackUser = updatedGameData.blackUsername();
+        var turnColor = updatedGame.getTeamTurn();
+        if(turnColor.equals(ChessGame.TeamColor.BLACK) )
         var moveToMake = command.getMove();
         var validMoves = updatedGame.validMoves(moveToMake.getStartPosition());
         if(validMoves.contains(moveToMake)){
