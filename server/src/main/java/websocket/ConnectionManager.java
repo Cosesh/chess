@@ -16,6 +16,7 @@ public class ConnectionManager {
     public final ConcurrentHashMap<Integer, ArrayList<Session>> connections = new ConcurrentHashMap<>();
 
     public void add(Session session, int gameID) {
+        connections.computeIfAbsent(gameID, k -> new ArrayList<>());
         connections.get(gameID).add(session);
     }
 
@@ -27,19 +28,32 @@ public class ConnectionManager {
         var serializer = new Gson();
 
         var game = connections.get(gameID);
-        for(Session c: game)
+        for(Session c: game){
             if (c.isOpen()) {
                 if (!c.equals(excludeSession)) {
                     c.getRemote().sendString(serializer.toJson(message));
                 }
+            }
         }
     }
 
     public void send(Session includedSession, ServerMessage message) throws IOException {
         if(includedSession.isOpen()){
             var serializer = new Gson();
-//            includedSession.getRemote().sendString(msg);
             includedSession.getRemote().sendString(serializer.toJson(message));
         }
+    }
+
+    public void sendToAll(ServerMessage message, int gameID) throws IOException {
+        var serializer = new Gson();
+
+        var game = connections.get(gameID);
+        for(Session c: game){
+            if (c.isOpen()) {
+                c.getRemote().sendString(serializer.toJson(message));
+            }
+        }
+
+
     }
 }

@@ -63,6 +63,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             switch (command.getCommandType()) {
                 case CONNECT -> connect(session, command);
+                case LEAVE -> leave(session, command);
 
             }
         } catch (Exception ex) {
@@ -106,15 +107,36 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             connections.send(session,servMessError);
             return;
         }
+
         String username = aDAO.getAuth(command.getAuthToken()).username();
         GameData updatedGameData = gDAO.getGame(ident);
         ChessGame updatedGame = updatedGameData.game();
+        if(isGameOver(updatedGame)){
+            ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"Game is over. Cannot make move");
+            connections.send(session,servMessError);
+            return;
+        }
         String whiteUser = updatedGameData.whiteUsername();
         String blackUser = updatedGameData.blackUsername();
         var turnColor = updatedGame.getTeamTurn();
-        if(turnColor.equals(ChessGame.TeamColor.BLACK) )
+
+
+
+        if(turnColor.equals(ChessGame.TeamColor.WHITE) && !username.equals(whiteUser)){
+            ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"Black cannot move. it is white's turn");
+            connections.send(session,servMessError);
+            return;
+        }
+
+        if(turnColor.equals(ChessGame.TeamColor.BLACK) && !username.equals(blackUser)){
+            ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"White cannot move. it is black's turn");
+            connections.send(session,servMessError);
+            return;
+        }
+
         var moveToMake = command.getMove();
         var validMoves = updatedGame.validMoves(moveToMake.getStartPosition());
+
         if(validMoves.contains(moveToMake)){
             updatedGame.makeMove(command.getMove());
 
@@ -124,14 +146,52 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             String msg = username + "made this move: " + moveToMake;
             ServerMessage servMessOther = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,msg);
             connections.broadcast(session,servMessOther,ident);
+
+            if(isGameOver(updatedGame)){
+                servMessAll = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,"game is over");
+                connections.sendToAll(servMessAll,ident);
+            }
         } else{
             ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"That lowkey not valid");
             connections.send(session,servMessError);
-            return;
         }
 
 
     }
 
+    private void leave(Session session, UserGameCommand command) throws DataAccessException, IOException {
+        var ident = command.getGameID();
+        var serializer = new Gson();
+        String username = aDAO.getAuth(command.getAuthToken()).username();
+        GameData myGame = gDAO.getGame(ident);
+        if(myGame.whiteUsername().equals(username)) {
+            gDAO.removeUser(ident,"WHITE");
+            ServerMessage servMessOther = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,"white has left the game");
+            connections.broadcast(session,servMessOther,ident);
+            connections.remove(ident,session);
 
+        }
+        if(myGame.blackUsername().equals(username)) {
+            gDAO.removeUser(ident,"BLACK");
+            ServerMessage servMessOther = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,"black has left the game");
+            connections.broadcast(session,servMessOther,ident);
+            connections.remove(ident,session);
+        } if(!myGame.whiteUsername().equals(username) && !myGame.blackUsername().equals(username)){
+            ServerMessage servMessOther = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,"observer has left the game");
+            connections.broadcast(session,servMessOther,ident);
+            connections.remove(ident,session);
+        }
+
+    }
+
+    private static boolean isGameOver(ChessGame updatedGame) {
+
+        return(updatedGame.isInCheckmate(ChessGame.TeamColor.WHITE) ||
+                updatedGame.isInStalemate(ChessGame.TeamColor.WHITE) ||
+                updatedGame.isInCheckmate(ChessGame.TeamColor.BLACK) ||
+                updatedGame.isInStalemate(ChessGame.TeamColor.BLACK));
+
+    }
 }
+
+
