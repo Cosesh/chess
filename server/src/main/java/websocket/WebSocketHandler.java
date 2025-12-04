@@ -98,6 +98,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private void makeMove(Session session, MakeMoveCommand command) throws DataAccessException, InvalidMoveException, IOException {
         var ident = command.getGameID();
         var serializer = new Gson();
+
+        if(aDAO.getAuth(command.getAuthToken()) == null) {
+            ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"That is so unauthorized");
+            connections.send(session,servMessError);
+            return;
+        }
         String username = aDAO.getAuth(command.getAuthToken()).username();
         ChessGame updatedGame = gDAO.getGame(ident).game();
         var moveToMake = command.getMove();
@@ -111,7 +117,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             String msg = username + "made this move: " + moveToMake;
             ServerMessage servMessOther = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,msg);
             connections.broadcast(session,servMessOther,ident);
-
+        } else{
+            ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"That lowkey not valid");
+            connections.send(session,servMessError);
+            return;
         }
 
 
