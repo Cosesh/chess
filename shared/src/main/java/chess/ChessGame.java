@@ -12,11 +12,13 @@ public class ChessGame {
 
     private ChessGame.TeamColor colorTurn;
     private ChessBoard gameBoard = new ChessBoard();
+    private boolean isFinished;
 
     public ChessGame() {
 
         this.colorTurn = TeamColor.WHITE;
         gameBoard.resetBoard();
+        this.isFinished = false;
 
 
     }
@@ -24,6 +26,7 @@ public class ChessGame {
     public ChessGame(ChessBoard board, ChessGame.TeamColor colorTurn){
         this.colorTurn = colorTurn;
         this.gameBoard = board;
+        this.isFinished = false;
     }
 
 
@@ -228,6 +231,13 @@ public class ChessGame {
         return gameBoard;
     }
 
+    public void setFinished(boolean finished) {
+        isFinished = finished;
+    }
+
+    public boolean isFinished() {
+        return isFinished;
+    }
 
     @Override
     public boolean equals(Object o) {

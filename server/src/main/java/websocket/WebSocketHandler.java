@@ -18,6 +18,7 @@ import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
@@ -64,6 +65,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             switch (command.getCommandType()) {
                 case CONNECT -> connect(session, command);
                 case LEAVE -> leave(session, command);
+                case RESIGN -> resign(session, command);
 
             }
         } catch (Exception ex) {
@@ -83,7 +85,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         var ident = command.getGameID();
 
         if(gDAO.getGame(ident) == null || aDAO.getAuth(command.getAuthToken()) == null) {
-            ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"Game ID does not exist");
+            ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                    "Game ID does not exist");
             connections.send(session,servMessError);
             return;
         }
@@ -103,7 +106,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         var serializer = new Gson();
 
         if(aDAO.getAuth(command.getAuthToken()) == null) {
-            ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"That is so unauthorized");
+            ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                    "That is so unauthorized");
             connections.send(session,servMessError);
             return;
         }
@@ -111,8 +115,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         String username = aDAO.getAuth(command.getAuthToken()).username();
         GameData updatedGameData = gDAO.getGame(ident);
         ChessGame updatedGame = updatedGameData.game();
-        if(isGameOver(updatedGame)){
-            ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"Game is over. Cannot make move");
+        if(updatedGame.isFinished()){
+            ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                    "Game is over. Cannot make move");
             connections.send(session,servMessError);
             return;
         }
@@ -123,13 +128,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
 
         if(turnColor.equals(ChessGame.TeamColor.WHITE) && !username.equals(whiteUser)){
-            ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"Black cannot move. it is white's turn");
+            ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                    "Black cannot move. it is white's turn");
             connections.send(session,servMessError);
             return;
         }
 
         if(turnColor.equals(ChessGame.TeamColor.BLACK) && !username.equals(blackUser)){
-            ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"White cannot move. it is black's turn");
+            ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                    "White cannot move. it is black's turn");
             connections.send(session,servMessError);
             return;
         }
@@ -148,11 +155,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             connections.broadcast(session,servMessOther,ident);
 
             if(isGameOver(updatedGame)){
-                servMessAll = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,"game is over");
+                servMessAll = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                        "game is over");
                 connections.sendToAll(servMessAll,ident);
+                updatedGame.setFinished(true);
+                gDAO.updateGameData(serializer.toJson(updatedGame),ident);
+
             }
         } else{
-            ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"That lowkey not valid");
+            ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                    "That lowkey not valid");
             connections.send(session,servMessError);
         }
 
@@ -164,23 +176,53 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         var serializer = new Gson();
         String username = aDAO.getAuth(command.getAuthToken()).username();
         GameData myGame = gDAO.getGame(ident);
-        if(myGame.whiteUsername().equals(username)) {
+        if(Objects.equals(myGame.whiteUsername(), username)) {
             gDAO.removeUser(ident,"WHITE");
             ServerMessage servMessOther = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,"white has left the game");
             connections.broadcast(session,servMessOther,ident);
             connections.remove(ident,session);
-
         }
-        if(myGame.blackUsername().equals(username)) {
+        if(Objects.equals(myGame.blackUsername(), username)) {
             gDAO.removeUser(ident,"BLACK");
             ServerMessage servMessOther = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,"black has left the game");
             connections.broadcast(session,servMessOther,ident);
             connections.remove(ident,session);
-        } if(!myGame.whiteUsername().equals(username) && !myGame.blackUsername().equals(username)){
+        } if(!Objects.equals(myGame.whiteUsername(), username)
+                && !Objects.equals(myGame.blackUsername(), username)){
             ServerMessage servMessOther = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,"observer has left the game");
             connections.broadcast(session,servMessOther,ident);
             connections.remove(ident,session);
         }
+
+
+    }
+
+    private void resign(Session session, UserGameCommand command) throws DataAccessException, IOException {
+        var ident = command.getGameID();
+        var serializer = new Gson();
+        String username = aDAO.getAuth(command.getAuthToken()).username();
+        GameData myGameData = gDAO.getGame(ident);
+        ChessGame myGame = myGameData.game();
+        if(!myGameData.whiteUsername().equals(username)
+                && !myGameData.blackUsername().equals(username)) {
+            ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                    "Observer cannot resign. He aint even playin");
+            connections.send(session, servMessError);
+            return;
+        }
+
+        if(myGame.isFinished()) {
+            ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                    "Cannot resign. The game is already over twin");
+            connections.send(session, servMessError);
+            return;
+        }
+        myGame.setFinished(true);
+        ServerMessage servMessAll = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                username + " has resigned because they are scared");
+        connections.sendToAll(servMessAll,ident);
+        gDAO.updateGameData(serializer.toJson(myGame),ident);
+
 
     }
 
