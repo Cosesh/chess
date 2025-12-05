@@ -5,6 +5,7 @@ import model.GameInfo;
 import ui.ResponseException;
 import ui.ServerFacade;
 import ui.State;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.util.ArrayList;
@@ -89,7 +90,8 @@ public class GameClient implements NotificationHandler{
 
 
     @Override
-    public void notify(ServerMessage message) {
+    public void notify(NotificationMessage message) {
+            System.out.println(message.getMessage());
 
     }
 
