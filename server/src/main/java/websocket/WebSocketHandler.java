@@ -150,7 +150,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             gDAO.updateGameData(serializer.toJson(updatedGame),ident);
             ServerMessage servMessAll = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,updatedGame);
             connections.sendToAll(servMessAll,ident);
-            String msg = username + "made this move: " + moveToMake;
+            String msg = username + " made this move: " + moveToMake;
             ServerMessage servMessOther = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,msg);
             connections.broadcast(session,servMessOther,ident);
 

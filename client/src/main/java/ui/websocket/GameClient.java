@@ -73,9 +73,18 @@ public class GameClient implements NotificationHandler{
             return switch (cmd) {
                 case "leave" -> leave();
                 case "redraw" -> redraw();
-                case "makemove" -> makeMove(params);
-                case "resign"-> resign();
-                case "highlight" -> highlight();
+                case "move" -> makeMove(params);
+                case "resign"-> {
+                    Scanner scanner = new Scanner(System.in);
+                    System.out.println("Are you sure you want to resign? Type yes to confirm");
+                    if (scanner.nextLine().equalsIgnoreCase("yes")){
+                        yield resign();
+                    } else{
+                        yield "ok cool keep playing boss";
+                    }
+
+                }
+                case "highlight" -> highlight(params);
                 default -> help();
             };
         } catch (Exception ex) {
@@ -83,25 +92,62 @@ public class GameClient implements NotificationHandler{
         }
     }
 
-    private String highlight() {
-        return "highlighted board";
+    private String highlight(String[] params) {
+        String text = params[0];
+        ChessPosition position = textToPosition(text);
+        ChessGame game = theGame.game();
+        var valid = game.validMoves(position);
+        ChessBoard board = theGame.game().getBoard();
+        var username = myauth.username();
+        var toPrint = boardString(board);
+        for(ChessMove move: valid) {
+            var row = 8 - move.getEndPosition().getRow();
+            var col = move.getEndPosition().getColumn() - 1;
+            highlightBoardString(toPrint, row, col);
+
+        }
+        highlightBoardString(toPrint, 8 - position.getRow(), position.getColumn() -1);
+        if(username.equals(theGame.blackUsername())) {
+            String[][] reverse = new String[8][8];
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    reverse[i][j] = toPrint[7-i][7-j];
+                }
+            } printBoardBlack(reverse);
+        } else {
+            printBoardWhite(toPrint);
+
+        }
+
+
+        return "";
+    }
+
+    private String[][] highlightBoardString(String[][] toPrint, int row, int col) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if(i == row && j == col) {
+                    toPrint[i][j] = SET_BG_COLOR_YELLOW + toPrint[i][j].replaceAll("\\u001B\\[[;\\d]*m", "") + RESET_BG_COLOR;
+                }
+            }
+
+        }
+        return toPrint;
     }
 
     private String resign() throws ResponseException {
+        System.out.println();
         ws.resign(myauth.authToken(), iD);
         return "you resigned";
     }
 
-    private String makeMove(String[] params) throws InvalidMoveException, DataAccessException {
+    private String makeMove(String[] params) throws InvalidMoveException, DataAccessException, ResponseException {
         theGame = gDAO.getGame(iD);
         var serializer = new Gson();
         String startText = params[0];
         String endText = params[1];
         ChessMove move = textToMove(startText, endText);
-        theGame.game().makeMove(move);
-        gDAO.updateGameData(serializer.toJson(theGame.game()),iD);
-
-        redraw();
+        ws.makeMove(myauth.authToken(),iD,move);
 
         return "";
     }
@@ -117,6 +163,13 @@ public class GameClient implements NotificationHandler{
         ChessPosition endPosition = new ChessPosition(endRow, endCol);
         ChessMove move = new ChessMove(startPosition, endPosition, null);
         return move;
+    }
+
+    private ChessPosition textToPosition(String text) {
+        int startRow = text.charAt(1) - '0';
+        int startCol =  text.charAt(0) - 'a' + 1;
+        ChessPosition position = new ChessPosition(startRow, startCol);
+        return position;
     }
 
     private String redraw() throws DataAccessException {
@@ -240,9 +293,9 @@ public class GameClient implements NotificationHandler{
                 - help
                 - redraw
                 - leave
-                - makeMove <starting position> <ending position>
+                - move <starting position> <ending position>
                 - resign
-                - highlight
+                - highlight <position>
                 """;
     }
     public String leave() throws ResponseException {
