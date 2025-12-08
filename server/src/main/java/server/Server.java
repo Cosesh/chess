@@ -201,7 +201,7 @@ public class Server {
         try{
             String authToken = ctx.header("authorization");
 
-            ArrayList<GameInfo> gamesList = sessionService.listGames(authToken);
+            ArrayList<GameData> gamesList = sessionService.listGames(authToken);
 
             String result = new Gson().toJson(Map.of("games",gamesList));
             ctx.result(result);

@@ -18,7 +18,7 @@ public class LoggedInClient {
     private State state = State.LOGGED_IN;
     private final ServerFacade server;
     private final AuthData myauth;
-    private ArrayList<GameInfo> theGameList;
+    private ArrayList<GameData> theGameList;
 
     public LoggedInClient(String serverUrl, AuthData auth)  {
         server = new ServerFacade(serverUrl);
@@ -114,7 +114,8 @@ public class LoggedInClient {
             return "";
         }
 
-        var iD = theGameList.get(chosenID).gameID();
+        var theGame = theGameList.get(chosenID);
+        var iD = theGame.gameID();
 
         JoinGamer joiner = new JoinGamer(color, iD);
 
@@ -133,7 +134,7 @@ public class LoggedInClient {
             } printBoardBlack(reverse);
 
         }
-        var gamed = new GameClient(server.getURL(), myauth, iD);
+        var gamed = new GameClient(server.getURL(), myauth, iD, theGame);
         gamed.run();
 
         return "";

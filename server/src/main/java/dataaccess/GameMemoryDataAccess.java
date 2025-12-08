@@ -6,7 +6,6 @@ import model.GameInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
 
 public class GameMemoryDataAccess implements GameDataAccess{
     private final HashMap<Integer, GameData> games = new HashMap<>();
@@ -26,10 +25,10 @@ public class GameMemoryDataAccess implements GameDataAccess{
     }
 
     @Override
-    public ArrayList<GameInfo> listGames() {
-        ArrayList<GameInfo> gamesList = new ArrayList<>();
+    public ArrayList<GameData> listGames() {
+        ArrayList<GameData> gamesList = new ArrayList<>();
         for(GameData game: games.values()){
-            GameInfo add = new GameInfo(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName());
+            GameData add = new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(),game.game());
             gamesList.add(add);
         }
         return gamesList;

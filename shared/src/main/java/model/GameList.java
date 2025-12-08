@@ -2,5 +2,5 @@ package model;
 
 import java.util.ArrayList;
 
-public record GameList(ArrayList<GameInfo> games) {
+public record GameList(ArrayList<GameData> games) {
 }

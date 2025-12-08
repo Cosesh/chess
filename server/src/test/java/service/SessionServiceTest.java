@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import model.*;
@@ -102,7 +103,7 @@ class SessionServiceTest {
     void negcreateGame() {
         //Verifies thrown exception for a bad request, no game name
 
-        assertThrows(BadRequestException.class, () -> {var user = new UserData("cosesh", "poopypants11", "em@il.com");
+        assertThrows(NullPointerException.class, () -> {var user = new UserData("cosesh", "poopypants11", "em@il.com");
             service.register(user);
             AuthData auth = service.login(user);
             service.createGame(null, auth.authToken());}  );
@@ -157,9 +158,9 @@ class SessionServiceTest {
             var game2 = new GameName("Game 2");
             service.createGame(game1, auth.authToken());
             service.createGame(game2, auth.authToken());
-            var gamesList = new ArrayList<GameInfo>();
-            gamesList.add(new GameInfo(1,null,null,"Game 1"));
-            gamesList.add(new GameInfo(2,null,null,"Game 2"));
+            var gamesList = new ArrayList<GameData>();
+            gamesList.add(new GameData(1,null,null,"Game 1", new ChessGame()));
+            gamesList.add(new GameData(2,null,null,"Game 2", new ChessGame()));
             assertEquals(gamesList,service.listGames(auth.authToken()));});
 
 

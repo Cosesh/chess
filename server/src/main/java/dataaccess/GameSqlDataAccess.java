@@ -2,7 +2,7 @@ package dataaccess;
 
 import chess.ChessGame;
 import model.GameData;
-import model.GameInfo;
+
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -59,16 +59,16 @@ public class GameSqlDataAccess implements GameDataAccess{
     }
 
     @Override
-    public ArrayList<GameInfo> listGames() throws DataAccessException {
-        ArrayList<GameInfo> gamesList = new ArrayList<>();
+    public ArrayList<GameData> listGames() throws DataAccessException {
+        ArrayList<GameData> gamesList = new ArrayList<>();
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement("SELECT * FROM games")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while(rs.next()) {
                         var game = readGame(rs);
-                        GameInfo info = new GameInfo(game.gameID(),game.whiteUsername(),
-                                game.blackUsername(),game.gameName());
-                        gamesList.add(info);
+                        GameData data = new GameData(game.gameID(),game.whiteUsername(),
+                                game.blackUsername(),game.gameName(), game.game());
+                        gamesList.add(data);
                     }
                 }
             }

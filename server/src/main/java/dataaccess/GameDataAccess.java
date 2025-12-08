@@ -1,15 +1,13 @@
 package dataaccess;
 
-import chess.ChessGame;
 import model.*;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public interface GameDataAccess {
     void clear() throws DataAccessException;
     int createGame(String gameName) throws DataAccessException;
-    ArrayList<GameInfo> listGames() throws DataAccessException;
+    ArrayList<GameData> listGames() throws DataAccessException;
     void updateGame(int iD, String color, String user) throws DataAccessException;
     GameData getGame(int iD) throws DataAccessException;
     void updateGameData(String game, int iD) throws DataAccessException;

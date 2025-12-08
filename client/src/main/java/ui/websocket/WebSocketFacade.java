@@ -9,6 +9,7 @@ import java.net.URISyntaxException;
 import com.google.gson.Gson;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
@@ -18,12 +19,11 @@ import websocket.messages.ServerMessage;
 public class WebSocketFacade extends Endpoint {
 
     private Session session;
-    private NotificationHandler notificationHandler;
+
     public WebSocketFacade(String url, NotificationHandler notificationHandler) throws Exception {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
-            this.notificationHandler = notificationHandler;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
@@ -40,7 +40,10 @@ public class WebSocketFacade extends Endpoint {
                             notificationHandler.notify(notificationMessage);
                         }
                         case LOAD_GAME -> notificationHandler.load(incomingMessage);
-                        case ERROR -> notificationHandler.error(incomingMessage);
+                        case ERROR -> {
+                            ErrorMessage errorMessage = Serializer.fromJson(message, ErrorMessage.class);
+                            notificationHandler.error(errorMessage);
+                        }
                     }
                 }
             });
