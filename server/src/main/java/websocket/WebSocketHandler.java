@@ -160,7 +160,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             gDAO.updateGameData(serializer.toJson(updatedGame),ident);
             ServerMessage servMessAll = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,updatedGame);
             connections.sendToAll(servMessAll,ident);
-            String msg = username + " made a move: \n" + moveToMake;
+            String msg = username + " made a move: " + moveToMake + "\n";
             if(updatedGame.isInCheck(ChessGame.TeamColor.WHITE)){
                 msg += "you are in check do something quick \n";
             } if(updatedGame.isInCheck(ChessGame.TeamColor.BLACK)){
