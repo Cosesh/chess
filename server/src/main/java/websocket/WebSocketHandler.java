@@ -48,12 +48,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
 
         try {
-            var Serializer = new Gson();
-            UserGameCommand command = Serializer.fromJson(
+            var serializer = new Gson();
+            UserGameCommand command = serializer.fromJson(
                     wsMessageContext.message(), UserGameCommand.class);
 
             if(command.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE){
-                MakeMoveCommand moveCommand = Serializer.fromJson(
+                MakeMoveCommand moveCommand = serializer.fromJson(
                         wsMessageContext.message(), MakeMoveCommand.class);
                 makeMove(session,moveCommand);
             }
@@ -73,12 +73,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
 
-    private void saveSession(int gameId, Session session) {
-        connections.add(session, gameId);
-    }
-
     private void connect(Session session, UserGameCommand command) throws IOException, DataAccessException {
-        var serializer = new Gson();
         var ident = command.getGameID();
 
         if(gDAO.getGame(ident) == null || aDAO.getAuth(command.getAuthToken()) == null) {
@@ -210,7 +205,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void leave(Session session, UserGameCommand command) throws DataAccessException, IOException {
         var ident = command.getGameID();
-        var serializer = new Gson();
         String username = aDAO.getAuth(command.getAuthToken()).username();
         GameData myGame = gDAO.getGame(ident);
         if(Objects.equals(myGame.whiteUsername(), username)) {

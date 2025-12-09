@@ -33,19 +33,19 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    var Serializer = new Gson();
-                    ServerMessage incomingMessage = Serializer.fromJson(message, ServerMessage.class);
+                    var serializer = new Gson();
+                    ServerMessage incomingMessage = serializer.fromJson(message, ServerMessage.class);
                     switch (incomingMessage.getServerMessageType()){
                         case NOTIFICATION -> {
-                            NotificationMessage notificationMessage = Serializer.fromJson(message, NotificationMessage.class);
+                            NotificationMessage notificationMessage = serializer.fromJson(message, NotificationMessage.class);
                             notificationHandler.notify(notificationMessage.getMessage());
                         }
                         case LOAD_GAME -> {
-                            LoadGameMessage loadGameMessage = Serializer.fromJson(message, LoadGameMessage.class);
+                            LoadGameMessage loadGameMessage = serializer.fromJson(message, LoadGameMessage.class);
                             notificationHandler.load(loadGameMessage.getGame());
                         }
                         case ERROR -> {
-                            ErrorMessage errorMessage = Serializer.fromJson(message, ErrorMessage.class);
+                            ErrorMessage errorMessage = serializer.fromJson(message, ErrorMessage.class);
                             notificationHandler.error(errorMessage.getErrorMessage());
                         }
                     }
