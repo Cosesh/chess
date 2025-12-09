@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
@@ -39,7 +40,10 @@ public class WebSocketFacade extends Endpoint {
                             NotificationMessage notificationMessage = Serializer.fromJson(message, NotificationMessage.class);
                             notificationHandler.notify(notificationMessage);
                         }
-                        case LOAD_GAME -> notificationHandler.load(incomingMessage);
+                        case LOAD_GAME -> {
+                            LoadGameMessage loadGameMessage = Serializer.fromJson(message, LoadGameMessage.class);
+                            notificationHandler.load(loadGameMessage);
+                        }
                         case ERROR -> {
                             ErrorMessage errorMessage = Serializer.fromJson(message, ErrorMessage.class);
                             notificationHandler.error(errorMessage);

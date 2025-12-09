@@ -96,18 +96,18 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         var game = gameData.game();
         ServerMessage servMessRoot = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,game);
         String msg = "";
-        if(gameData.whiteUsername().equals(username)){
+        if(Objects.equals(gameData.whiteUsername(), username)){
             msg = username + " joined as white\n";
-        } if(gameData.blackUsername().equals(username)){
+        } else if(Objects.equals(gameData.blackUsername(), username)){
             msg = username + " joined as black\n";
-        } if(!gameData.whiteUsername().equals(username) && !gameData.blackUsername().equals(username))
+        } else
         {
             msg = username + " joined as observer\n";
         }
 
         ServerMessage servMessOther = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,msg);
         connections.broadcast(session,servMessOther, ident);
-        connections.send(session, servMessRoot);
+        connections.send(session,servMessRoot);
     }
 
 
@@ -152,6 +152,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
 
         var moveToMake = command.getMove();
+        if(updatedGame.getBoard().getPiece(moveToMake.getStartPosition()) == null){
+            ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                    "No piece at that spot, try making a valid move\n");
+            connections.send(session,servMessError);
+            return;
+        }
         var validMoves = updatedGame.validMoves(moveToMake.getStartPosition());
 
         if(validMoves.contains(moveToMake)){
@@ -161,22 +167,34 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             ServerMessage servMessAll = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,updatedGame);
             connections.sendToAll(servMessAll,ident);
             String msg = username + " made a move: " + moveToMake + "\n";
-            if(updatedGame.isInCheck(ChessGame.TeamColor.WHITE)){
-                msg += "you are in check do something quick \n";
-            } if(updatedGame.isInCheck(ChessGame.TeamColor.BLACK)){
-                msg += "you are in check please don't lose :((((( \n";
-            }
-            ServerMessage servMessOther = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,msg);
-            connections.broadcast(session,servMessOther,ident);
 
+            servMessAll = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, msg);
+            connections.sendToAll(servMessAll,ident);
             if(isCheckmate(updatedGame)){
-                servMessAll = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                        "checkmate\n");
+                if(updatedGame.isInCheckmate(ChessGame.TeamColor.WHITE)){
+                    servMessAll = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                            blackUser +" checkmated " + whiteUser + "\n");
+                } else{
+                    servMessAll = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                            whiteUser +" checkmated " + blackUser + "\n");
+                }
+
                 connections.sendToAll(servMessAll,ident);
                 updatedGame.setFinished(true);
                 gDAO.updateGameData(serializer.toJson(updatedGame),ident);
 
-            } if(isStalemate(updatedGame)){
+            }
+            else if(updatedGame.isInCheck(ChessGame.TeamColor.WHITE)){
+                servMessAll = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                        blackUser +" put " + whiteUser + " in check" + "\n");
+                connections.sendToAll(servMessAll,ident);
+            } else if(updatedGame.isInCheck(ChessGame.TeamColor.BLACK)){
+                servMessAll = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                        whiteUser +" put " + blackUser + " in check" + "\n");
+                connections.sendToAll(servMessAll,ident);
+            }
+
+             else if(isStalemate(updatedGame)){
                 servMessAll = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                         "stalemate\n");
                 connections.sendToAll(servMessAll,ident);

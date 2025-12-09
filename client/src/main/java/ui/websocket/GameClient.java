@@ -43,7 +43,8 @@ public class GameClient implements NotificationHandler{
 
     public void run() throws ResponseException {
         ws.connect(myauth.authToken(), iD );
-        System.out.println( "You're in the game \n");
+        System.out.println( "You're in the game \n" +
+                "Type 'help' for command options");
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("you left the game")) {
@@ -146,7 +147,12 @@ public class GameClient implements NotificationHandler{
         String startText = params[0];
         String endText = params[1];
         ChessMove move = textToMove(startText, endText);
-        ws.makeMove(myauth.authToken(),iD,move);
+        try{
+            ws.makeMove(myauth.authToken(),iD,move);
+        } catch (Exception e) {
+            System.out.println("invalid move");
+        }
+
 
         return "";
     }

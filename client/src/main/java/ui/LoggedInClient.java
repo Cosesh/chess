@@ -124,7 +124,7 @@ public class LoggedInClient {
         return "";
     }
 
-    public String observeGame(String... params) throws ResponseException {
+    public String observeGame(String... params) throws Exception {
         if (params.length !=1){
             throw new ResponseException(ResponseException.Code.ClientError,
                     "observe requires 1 parameter " +
@@ -140,10 +140,11 @@ public class LoggedInClient {
             System.out.println("that game id does not exist");
             return "";
         }
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
-        var toPrint = boardString(board);
-        printBoardWhite(toPrint);
+
+        var theGame = theGameList.get(chosenID);
+        var iD = theGame.gameID();
+        var gamed = new GameClient(server.getURL(), myauth, iD, theGame);
+        gamed.run();
         return "";
     }
 
