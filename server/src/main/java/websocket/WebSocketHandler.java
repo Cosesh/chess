@@ -1,6 +1,5 @@
 package websocket;
 
-import chess.ChessBoard;
 import chess.ChessGame;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
@@ -8,8 +7,6 @@ import dataaccess.*;
 import io.javalin.websocket.*;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
-import org.jetbrains.annotations.NotNull;
-import server.Server;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
@@ -93,8 +90,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         String username = aDAO.getAuth(command.getAuthToken()).username();
         connections.add(session, ident);
         var gameData = gDAO.getGame(ident);
-        var game = gameData.game();
-        ServerMessage servMessRoot = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,game);
+        ServerMessage servMessRoot = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,gameData);
         String msg = "";
         if(Objects.equals(gameData.whiteUsername(), username)){
             msg = username + " joined as white\n";
@@ -164,7 +160,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             updatedGame.makeMove(command.getMove());
 
             gDAO.updateGameData(serializer.toJson(updatedGame),ident);
-            ServerMessage servMessAll = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,updatedGame);
+            GameData jacob = gDAO.getGame(ident);
+            ServerMessage servMessAll = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,jacob);
             connections.sendToAll(servMessAll,ident);
             String msg = username + " made a move: " + moveToMake + "\n";
 

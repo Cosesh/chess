@@ -38,15 +38,15 @@ public class WebSocketFacade extends Endpoint {
                     switch (incomingMessage.getServerMessageType()){
                         case NOTIFICATION -> {
                             NotificationMessage notificationMessage = Serializer.fromJson(message, NotificationMessage.class);
-                            notificationHandler.notify(notificationMessage);
+                            notificationHandler.notify(notificationMessage.getMessage());
                         }
                         case LOAD_GAME -> {
                             LoadGameMessage loadGameMessage = Serializer.fromJson(message, LoadGameMessage.class);
-                            notificationHandler.load(loadGameMessage);
+                            notificationHandler.load(loadGameMessage.getGame());
                         }
                         case ERROR -> {
                             ErrorMessage errorMessage = Serializer.fromJson(message, ErrorMessage.class);
-                            notificationHandler.error(errorMessage);
+                            notificationHandler.error(errorMessage.getErrorMessage());
                         }
                     }
                 }

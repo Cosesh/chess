@@ -1,21 +1,13 @@
 package ui.websocket;
 
 import chess.*;
-import com.google.gson.Gson;
-import dataaccess.DataAccessException;
-import dataaccess.GameSqlDataAccess;
 import model.AuthData;
 import model.GameData;
-import model.GameInfo;
-import model.JoinGamer;
+
 import ui.ResponseException;
 import ui.ServerFacade;
 import ui.State;
-import websocket.messages.ErrorMessage;
-import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -25,17 +17,13 @@ import static ui.EscapeSequences.RESET_BG_COLOR;
 
 public class GameClient implements NotificationHandler{
     private State state = State.IN_GAME;
-    private final ServerFacade server;
     private final AuthData myauth;
     private final int iD;
     private GameData theGame;
     private final WebSocketFacade ws;
-    private GameSqlDataAccess gDAO;
 
     public GameClient(String serverUrl, AuthData auth, int iD, GameData theGame) throws Exception {
-        server = new ServerFacade(serverUrl);
         myauth = auth;
-        gDAO = new GameSqlDataAccess();
         this.iD = iD;
         this.theGame = theGame;
         ws = new WebSocketFacade(serverUrl,this);
@@ -142,8 +130,7 @@ public class GameClient implements NotificationHandler{
         return "you resigned";
     }
 
-    private String makeMove(String[] params) throws InvalidMoveException, DataAccessException, ResponseException {
-        theGame = gDAO.getGame(iD);
+    private String makeMove(String[] params)  {
         String startText = params[0];
         String endText = params[1];
         ChessMove move = textToMove(startText, endText);
@@ -181,7 +168,6 @@ public class GameClient implements NotificationHandler{
         System.out.println("\n");
 
         try{
-            theGame = gDAO.getGame(iD);
             ChessBoard board = theGame.game().getBoard();
             var username = myauth.username();
             var toPrint = boardString(board);
@@ -198,8 +184,8 @@ public class GameClient implements NotificationHandler{
             }
             return "";
 
-        } catch (DataAccessException e) {
-            throw new RuntimeException();
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
         }
 
     }
@@ -283,19 +269,21 @@ public class GameClient implements NotificationHandler{
 
 
     @Override
-    public void notify(NotificationMessage message) {
-            System.out.println(message.getMessage());
+    public void notify(String message) {
+            System.out.println(message);
 
     }
 
     @Override
-    public void load(ServerMessage message) {
+    public void load(GameData game) {
+
+        theGame=game;
         redraw();
 
     }
     @Override
-    public void error(ErrorMessage message) {
-        System.out.println(message.getErrorMessage());
+    public void error(String message) {
+        System.out.println(message);
 
     }
 
