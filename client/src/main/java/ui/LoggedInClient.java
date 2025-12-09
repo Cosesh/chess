@@ -116,24 +116,8 @@ public class LoggedInClient {
 
         var theGame = theGameList.get(chosenID);
         var iD = theGame.gameID();
-
         JoinGamer joiner = new JoinGamer(color, iD);
-
         server.joinGame(joiner, myauth);
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
-        var toPrint = boardString(board);
-        if(color.equals("WHITE")) {
-            printBoardWhite(toPrint);
-        } else {
-            String[][] reverse = new String[8][8];
-            for (int i = 0; i < 8; i++) {
-                for (int j = 0; j < 8; j++) {
-                    reverse[i][j] = toPrint[7-i][7-j];
-                }
-            } printBoardBlack(reverse);
-
-        }
         var gamed = new GameClient(server.getURL(), myauth, iD, theGame);
         gamed.run();
 

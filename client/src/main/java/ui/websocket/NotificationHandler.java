@@ -1,6 +1,7 @@
 package ui.websocket;
 
 
+import dataaccess.DataAccessException;
 import websocket.messages.ErrorMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;

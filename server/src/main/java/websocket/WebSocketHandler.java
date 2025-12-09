@@ -86,15 +86,25 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         if(gDAO.getGame(ident) == null || aDAO.getAuth(command.getAuthToken()) == null) {
             ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
-                    "Game ID does not exist");
+                    "Game ID does not exist\n");
             connections.send(session,servMessError);
             return;
         }
         String username = aDAO.getAuth(command.getAuthToken()).username();
         connections.add(session, ident);
-        var game = gDAO.getGame(ident).game();
+        var gameData = gDAO.getGame(ident);
+        var game = gameData.game();
         ServerMessage servMessRoot = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,game);
-        String msg = username + " joined as";
+        String msg = "";
+        if(gameData.whiteUsername().equals(username)){
+            msg = username + " joined as white\n";
+        } if(gameData.blackUsername().equals(username)){
+            msg = username + " joined as black\n";
+        } if(!gameData.whiteUsername().equals(username) && !gameData.blackUsername().equals(username))
+        {
+            msg = username + " joined as observer\n";
+        }
+
         ServerMessage servMessOther = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,msg);
         connections.broadcast(session,servMessOther, ident);
         connections.send(session, servMessRoot);
@@ -107,7 +117,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         if(aDAO.getAuth(command.getAuthToken()) == null) {
             ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
-                    "That is so unauthorized");
+                    "That is so unauthorized\n");
             connections.send(session,servMessError);
             return;
         }
@@ -117,7 +127,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         ChessGame updatedGame = updatedGameData.game();
         if(updatedGame.isFinished()){
             ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
-                    "Game is over. Cannot make move");
+                    "Game is over. Cannot make move\n");
             connections.send(session,servMessError);
             return;
         }
@@ -129,14 +139,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         if(turnColor.equals(ChessGame.TeamColor.WHITE) && !username.equals(whiteUser)){
             ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
-                    "Black cannot move. it is white's turn");
+                    "Black cannot move. it is white's turn\n");
             connections.send(session,servMessError);
             return;
         }
 
         if(turnColor.equals(ChessGame.TeamColor.BLACK) && !username.equals(blackUser)){
             ServerMessage servMessError = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
-                    "White cannot move. it is black's turn");
+                    "White cannot move. it is black's turn\n");
             connections.send(session,servMessError);
             return;
         }
@@ -150,13 +160,25 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             gDAO.updateGameData(serializer.toJson(updatedGame),ident);
             ServerMessage servMessAll = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,updatedGame);
             connections.sendToAll(servMessAll,ident);
-            String msg = username + " made this move: " + moveToMake;
+            String msg = username + " made a move: \n" + moveToMake;
+            if(updatedGame.isInCheck(ChessGame.TeamColor.WHITE)){
+                msg += "you are in check do something quick \n";
+            } if(updatedGame.isInCheck(ChessGame.TeamColor.BLACK)){
+                msg += "you are in check please don't lose :((((( \n";
+            }
             ServerMessage servMessOther = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,msg);
             connections.broadcast(session,servMessOther,ident);
 
-            if(isGameOver(updatedGame)){
+            if(isCheckmate(updatedGame)){
                 servMessAll = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                        "game is over");
+                        "checkmate\n");
+                connections.sendToAll(servMessAll,ident);
+                updatedGame.setFinished(true);
+                gDAO.updateGameData(serializer.toJson(updatedGame),ident);
+
+            } if(isStalemate(updatedGame)){
+                servMessAll = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                        "stalemate\n");
                 connections.sendToAll(servMessAll,ident);
                 updatedGame.setFinished(true);
                 gDAO.updateGameData(serializer.toJson(updatedGame),ident);
@@ -178,18 +200,18 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         GameData myGame = gDAO.getGame(ident);
         if(Objects.equals(myGame.whiteUsername(), username)) {
             gDAO.removeUser(ident,"WHITE");
-            ServerMessage servMessOther = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,"white has left the game");
+            ServerMessage servMessOther = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,username + " has left the game");
             connections.broadcast(session,servMessOther,ident);
             connections.remove(ident,session);
         }
         if(Objects.equals(myGame.blackUsername(), username)) {
             gDAO.removeUser(ident,"BLACK");
-            ServerMessage servMessOther = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,"black has left the game");
+            ServerMessage servMessOther = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,username +" has left the game");
             connections.broadcast(session,servMessOther,ident);
             connections.remove(ident,session);
         } if(!Objects.equals(myGame.whiteUsername(), username)
                 && !Objects.equals(myGame.blackUsername(), username)){
-            ServerMessage servMessOther = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,"observer has left the game");
+            ServerMessage servMessOther = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,username + " has stopped observing");
             connections.broadcast(session,servMessOther,ident);
             connections.remove(ident,session);
         }
@@ -226,11 +248,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     }
 
-    private static boolean isGameOver(ChessGame updatedGame) {
+    private static boolean isCheckmate(ChessGame updatedGame) {
 
         return(updatedGame.isInCheckmate(ChessGame.TeamColor.WHITE) ||
-                updatedGame.isInStalemate(ChessGame.TeamColor.WHITE) ||
-                updatedGame.isInCheckmate(ChessGame.TeamColor.BLACK) ||
+                updatedGame.isInCheckmate(ChessGame.TeamColor.BLACK));
+
+    }
+
+    private static boolean isStalemate(ChessGame updatedGame) {
+
+        return(updatedGame.isInStalemate(ChessGame.TeamColor.WHITE) ||
                 updatedGame.isInStalemate(ChessGame.TeamColor.BLACK));
 
     }

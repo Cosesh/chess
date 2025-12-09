@@ -43,7 +43,7 @@ public class GameClient implements NotificationHandler{
 
     public void run() throws ResponseException {
         ws.connect(myauth.authToken(), iD );
-        System.out.println( " You're in the game");
+        System.out.println( "You're in the game \n");
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("you left the game")) {
@@ -143,7 +143,6 @@ public class GameClient implements NotificationHandler{
 
     private String makeMove(String[] params) throws InvalidMoveException, DataAccessException, ResponseException {
         theGame = gDAO.getGame(iD);
-        var serializer = new Gson();
         String startText = params[0];
         String endText = params[1];
         ChessMove move = textToMove(startText, endText);
@@ -172,25 +171,31 @@ public class GameClient implements NotificationHandler{
         return position;
     }
 
-    private String redraw() throws DataAccessException {
+    private String redraw() {
+        System.out.println("\n");
 
+        try{
+            theGame = gDAO.getGame(iD);
+            ChessBoard board = theGame.game().getBoard();
+            var username = myauth.username();
+            var toPrint = boardString(board);
+            if(username.equals(theGame.blackUsername())) {
+                String[][] reverse = new String[8][8];
+                for (int i = 0; i < 8; i++) {
+                    for (int j = 0; j < 8; j++) {
+                        reverse[i][j] = toPrint[7-i][7-j];
+                    }
+                } printBoardBlack(reverse);
+            } else {
+                printBoardWhite(toPrint);
 
-        theGame = gDAO.getGame(iD);
-        ChessBoard board = theGame.game().getBoard();
-        var username = myauth.username();
-        var toPrint = boardString(board);
-        if(username.equals(theGame.blackUsername())) {
-            String[][] reverse = new String[8][8];
-            for (int i = 0; i < 8; i++) {
-                for (int j = 0; j < 8; j++) {
-                    reverse[i][j] = toPrint[7-i][7-j];
-                }
-            } printBoardBlack(reverse);
-        } else {
-            printBoardWhite(toPrint);
+            }
+            return "";
 
+        } catch (DataAccessException e) {
+            throw new RuntimeException();
         }
-        return "";
+
     }
 
 
@@ -279,6 +284,7 @@ public class GameClient implements NotificationHandler{
 
     @Override
     public void load(ServerMessage message) {
+        redraw();
 
     }
     @Override
