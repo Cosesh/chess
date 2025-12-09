@@ -96,6 +96,10 @@ public class GameClient implements NotificationHandler{
 
         }
         highlightBoardString(toPrint, 8 - position.getRow(), position.getColumn() -1);
+        return printBlack(username, toPrint);
+    }
+
+    private String printBlack(String username, String[][] toPrint) {
         if(username.equals(theGame.blackUsername())) {
             String[][] reverse = new String[8][8];
             for (int i = 0; i < 8; i++) {
@@ -171,18 +175,7 @@ public class GameClient implements NotificationHandler{
             ChessBoard board = theGame.game().getBoard();
             var username = myauth.username();
             var toPrint = boardString(board);
-            if(username.equals(theGame.blackUsername())) {
-                String[][] reverse = new String[8][8];
-                for (int i = 0; i < 8; i++) {
-                    for (int j = 0; j < 8; j++) {
-                        reverse[i][j] = toPrint[7-i][7-j];
-                    }
-                } printBoardBlack(reverse);
-            } else {
-                printBoardWhite(toPrint);
-
-            }
-            return "";
+            return printBlack(username, toPrint);
 
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());

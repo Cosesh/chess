@@ -160,8 +160,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             connections.sendToAll(servMessAll,ident);
             String msg = username + " made a move: " + moveToMake + "\n";
 
-            servMessAll = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, msg);
-            connections.sendToAll(servMessAll,ident);
+            ServerMessage servMessOther = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, msg);
+            connections.broadcast(session,servMessOther,ident);
             if(isCheckmate(updatedGame)){
                 if(updatedGame.isInCheckmate(ChessGame.TeamColor.WHITE)){
                     servMessAll = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
