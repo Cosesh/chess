@@ -30,13 +30,14 @@ public class LoggedInClient {
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("logout")) {
-            result = getResult(scanner, result);
+            result = getTheResult(scanner, result);
         }
         System.out.println();
     }
 
-    private String getResult(Scanner scanner, String result) {
+    private String getTheResult(Scanner scanner, String result) {
         printPrompt();
+        var go = 4+6;
         String line = scanner.nextLine();
         try {
             result = eval(line);
@@ -47,6 +48,12 @@ public class LoggedInClient {
         }
         return result;
     }
+
+    private void printPrompt() {
+        System.out.print("\n" + state  + " >>> " );
+    }
+
+
 
     public String eval(String input) {
         try {
@@ -168,7 +175,5 @@ public class LoggedInClient {
 
 
 
-    private void printPrompt() {
-        System.out.print("\n" + state  + " >>> " );
-    }
+
 }
